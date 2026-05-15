@@ -304,27 +304,28 @@ class PortScannerApp:
 
         socket.setdefaulttimeout(0.5)
 
-        # Use configured port range (initial setup). Replace with threaded pool later.
+        # Submit scan jobs concurrently using user-selected worker count.
         start_port, end_port = self.get_port_range()
-        port_count = 0
-        for port in range(start_port, end_port + 1):
-            if self.stop_event.is_set():
-                break
+        ports = list(range(start_port, end_port + 1))
+        workers = self.get_thread_count()
 
-            try:
-                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                result = s.connect_ex((target, port))
-                if result == 0:
-                    self.write_result(f"✔ Port {port} is OPEN\n", "open")
-                s.close()
-            except Exception:
-                pass
-            # update progress (schedule on main thread)
-            port_count += 1
-            try:
-                self.root.after(0, self.progress_var.set, port_count)
-            except Exception:
-                pass
+        with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
+            for port in ports:
+                if self.stop_event.is_set():
+                    break
+                future = executor.submit(self.scan_single_port, target, port)
+                self.active_futures.add(future)
+
+            self.submitted_jobs = len(self.active_futures)
+
+            for future in concurrent.futures.as_completed(self.active_futures):
+                if self.stop_event.is_set():
+                    break
+                try:
+                    port, is_open = future.result()
+                except Exception:
+                    continue
+                self.root.after(0, self._record_scan_result, port, is_open)
 
         if not self.stop_event.is_set():
             self.write_result("\n Scan completed.\n", "info")
