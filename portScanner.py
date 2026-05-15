@@ -76,6 +76,7 @@ class PortScannerApp:
         self.start_port_entry = tk.Entry(frame, width=6, font=("Segoe UI", 10))
         self.start_port_entry.insert(0, str(self.DEFAULT_START_PORT))
         self.start_port_entry.pack(side=tk.LEFT, padx=5)
+        # Commit 2 note: added start port entry
 
         ep_label = tk.Label(
             frame,
