@@ -252,6 +252,8 @@ class PortScannerApp:
 
     def stop_scan(self):
         self.stop_event.set()
+        for future in list(self.active_futures):
+            future.cancel()
         self.write_result("\n Scan stopped by user.\n", "error")
         self.scan_button.config(state=tk.NORMAL)
         self.stop_button.config(state=tk.DISABLED)
@@ -308,6 +310,7 @@ class PortScannerApp:
         start_port, end_port = self.get_port_range()
         ports = list(range(start_port, end_port + 1))
         workers = self.get_thread_count()
+        self.write_result(f"Workers: {workers}\n", "info")
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
             for port in ports:
