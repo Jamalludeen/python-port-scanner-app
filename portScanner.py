@@ -217,6 +217,7 @@ class PortScannerApp:
         if t < 1:
             t = 1
         return t
+        # Commit 4 note: basic validation exists for thread count
 
     def stop_scan(self):
         self.stop_event.set()
