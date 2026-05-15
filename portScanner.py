@@ -3,6 +3,9 @@ import threading
 from datetime import datetime
 import tkinter as tk
 from tkinter import ttk, messagebox
+import concurrent.futures
+from typing import Optional
+# COMMIT_MARKER: init-feature-commit-1
 
 
 class PortScannerApp:
@@ -12,13 +15,20 @@ class PortScannerApp:
     ACCENT_COLOR = "#89b4fa"
     SUCCESS_COLOR = "#a6e3a1"
     ERROR_COLOR = "#f38ba8"
+    # Feature defaults (initial setup for custom range/concurrency)
+    DEFAULT_START_PORT = 1
+    DEFAULT_END_PORT = 1024
+    DEFAULT_THREAD_COUNT = 50
 
     def __init__(self, root):
         self.root = root
         self.root.title("Port Scanner")
-        self.root.geometry("700x500")
+        self.root.geometry("1300x680")
         self.root.configure(bg=self.BG_COLOR)
-        self.root.resizable(False, False)
+        self.root.resizable(True, True)
+
+        self.is_maximized = False
+        self.normal_geometry = self.root.geometry()
 
         self.stop_event = threading.Event()
         self.scan_thread = None
@@ -57,6 +67,32 @@ class PortScannerApp:
         self.host_entry = tk.Entry(frame, width=30, font=("Segoe UI", 12))
         self.host_entry.pack(side=tk.LEFT, padx=5)
 
+        # Port range inputs (initial UI only)
+        sp_label = tk.Label(
+            frame,
+            text="Start Port:",
+            font=("Segoe UI", 10),
+            fg=self.FG_COLOR,
+            bg=self.BG_COLOR,
+        )
+        sp_label.pack(side=tk.LEFT, padx=(12, 5))
+        self.start_port_entry = tk.Entry(frame, width=6, font=("Segoe UI", 10))
+        self.start_port_entry.insert(0, str(self.DEFAULT_START_PORT))
+        self.start_port_entry.pack(side=tk.LEFT, padx=5)
+        # Commit 2 note: added start port entry
+
+        ep_label = tk.Label(
+            frame,
+            text="End Port:",
+            font=("Segoe UI", 10),
+            fg=self.FG_COLOR,
+            bg=self.BG_COLOR,
+        )
+        ep_label.pack(side=tk.LEFT, padx=(6, 5))
+        self.end_port_entry = tk.Entry(frame, width=6, font=("Segoe UI", 10))
+        self.end_port_entry.insert(0, str(self.DEFAULT_END_PORT))
+        self.end_port_entry.pack(side=tk.LEFT, padx=5)
+
         self.scan_button = tk.Button(
             frame,
             text="Scan",
@@ -77,6 +113,32 @@ class PortScannerApp:
             command=self.stop_scan,
         )
         self.stop_button.pack(side=tk.LEFT, padx=8)
+
+        self.maximize_button = tk.Button(
+            frame,
+            text="Maximize",
+            font=("Segoe UI", 12, "bold"),
+            bg=self.SUCCESS_COLOR,
+            fg="black",
+            command=self.toggle_maximize,
+        )
+        self.maximize_button.pack(side=tk.LEFT, padx=8)
+
+        # Thread count (initial UI only)
+        tc_label = tk.Label(
+            frame,
+            text="Threads:",
+            font=("Segoe UI", 10),
+            fg=self.FG_COLOR,
+            bg=self.BG_COLOR,
+        )
+        tc_label.pack(side=tk.LEFT, padx=(12, 5))
+        self.thread_count_spinbox = tk.Spinbox(
+            frame, from_=1, to=500, width=5
+        )
+        self.thread_count_spinbox.delete(0, tk.END)
+        self.thread_count_spinbox.insert(0, str(self.DEFAULT_THREAD_COUNT))
+        self.thread_count_spinbox.pack(side=tk.LEFT, padx=5)
 
     def create_results_section(self):
         frame = tk.Frame(self.root, bg=self.BG_COLOR)
@@ -100,6 +162,24 @@ class PortScannerApp:
         self.results_box.tag_config("error", foreground=self.ERROR_COLOR)
         self.results_box.tag_config("info", foreground=self.ACCENT_COLOR)
 
+        # Progress bar (initial UI element)
+        self.progress_var = tk.IntVar(value=0)
+        progress_frame = tk.Frame(self.root, bg=self.BG_COLOR)
+        progress_frame.pack(fill=tk.X, padx=15, pady=(4, 10))
+        self.progress_label = tk.Label(
+            progress_frame,
+            text="Progress:",
+            font=("Segoe UI", 10),
+            fg=self.FG_COLOR,
+            bg=self.BG_COLOR,
+        )
+        self.progress_label.pack(side=tk.LEFT)
+        # Commit 3 note: progress label added
+        self.progress = ttk.Progressbar(
+            progress_frame, orient=tk.HORIZONTAL, length=400, mode="determinate", variable=self.progress_var
+        )
+        self.progress.pack(side=tk.LEFT, padx=8)
+
     # scan control
     def start_scan(self):
         if self.scan_thread and self.scan_thread.is_alive():
@@ -116,11 +196,66 @@ class PortScannerApp:
         )
         self.scan_thread.start()
 
+        # initialize progress for upcoming scan (value and maximum will be set)
+        try:
+            start, end = self.get_port_range()
+            total = max(0, end - start + 1)
+            self.progress_var.set(0)
+            self.progress.config(maximum=total)
+        except Exception:
+            # if UI not fully initialized, ignore for now
+            pass
+
+    # Helper getters (initial parsing logic)
+    def get_port_range(self):
+        try:
+            s = int(self.start_port_entry.get())
+        except Exception:
+            s = self.DEFAULT_START_PORT
+        try:
+            e = int(self.end_port_entry.get())
+        except Exception:
+            e = self.DEFAULT_END_PORT
+        if s < 1:
+            s = 1
+        if e < s:
+            e = s
+        return s, e
+
+    def get_thread_count(self):
+        try:
+            t = int(self.thread_count_spinbox.get())
+        except Exception:
+            t = self.DEFAULT_THREAD_COUNT
+        if t < 1:
+            t = 1
+        return t
+        # Commit 4 note: basic validation exists for thread count
+
     def stop_scan(self):
         self.stop_event.set()
         self.write_result("\n Scan stopped by user.\n", "error")
         self.scan_button.config(state=tk.NORMAL)
         self.stop_button.config(state=tk.DISABLED)
+
+    def toggle_maximize(self):
+        if not self.is_maximized:
+            self.normal_geometry = self.root.geometry()
+            try:
+                self.root.state("zoomed")
+            except tk.TclError:
+                self.root.attributes("-zoomed", True)
+            self.maximize_button.config(text="Restore")
+            self.is_maximized = True
+        else:
+            try:
+                self.root.state("normal")
+            except tk.TclError:
+                self.root.attributes("-zoomed", False)
+            if self.normal_geometry:
+                self.root.geometry(self.normal_geometry)
+            self.maximize_button.config(text="Maximize")
+            self.is_maximized = False
 
     def scan_ports(self):
         target = self.host_entry.get().strip()
@@ -144,7 +279,10 @@ class PortScannerApp:
 
         socket.setdefaulttimeout(0.5)
 
-        for port in range(1, 1025):
+        # Use configured port range (initial setup). Replace with threaded pool later.
+        start_port, end_port = self.get_port_range()
+        port_count = 0
+        for port in range(start_port, end_port + 1):
             if self.stop_event.is_set():
                 break
 
@@ -156,9 +294,16 @@ class PortScannerApp:
                 s.close()
             except Exception:
                 pass
+            # update progress (schedule on main thread)
+            port_count += 1
+            try:
+                self.root.after(0, self.progress_var.set, port_count)
+            except Exception:
+                pass
 
         if not self.stop_event.is_set():
             self.write_result("\n Scan completed.\n", "info")
+        # Commit 5 note: scan completion logged; future commit will add concurrent executor
 
         self.reset_buttons()
 
