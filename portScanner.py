@@ -271,6 +271,7 @@ class PortScannerApp:
 
         if not self.stop_event.is_set():
             self.write_result("\n Scan completed.\n", "info")
+        # Commit 5 note: scan completion logged; future commit will add concurrent executor
 
         self.reset_buttons()
 
