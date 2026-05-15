@@ -268,6 +268,12 @@ class PortScannerApp:
     def _queue_result_text(self, text, tag=None):
         self.root.after(0, self.write_result, text, tag)
 
+    def _queue_reset_buttons(self):
+        self.root.after(0, self.reset_buttons)
+
+    def _queue_error_dialog(self, title, message):
+        self.root.after(0, messagebox.showerror, title, message)
+
     def toggle_maximize(self):
         if not self.is_maximized:
             self.normal_geometry = self.root.geometry()
@@ -291,15 +297,15 @@ class PortScannerApp:
         target = self.host_entry.get().strip()
 
         if not target:
-            messagebox.showerror("Error", "Please enter a hostname or IP address")
-            self.reset_buttons()
+            self._queue_error_dialog("Error", "Please enter a hostname or IP address")
+            self._queue_reset_buttons()
             return
 
         try:
             ip = socket.gethostbyname(target)
         except socket.gaierror:
-            self.write_result(" Hostname could not be resolved\n", "error")
-            self.reset_buttons()
+            self._queue_result_text(" Hostname could not be resolved\n", "error")
+            self._queue_reset_buttons()
             return
 
         self._queue_result_text(f"Target: {target}\n")
@@ -347,7 +353,7 @@ class PortScannerApp:
                 "info",
             )
 
-        self.reset_buttons()
+        self._queue_reset_buttons()
 
     # HELPERS
     def clear_results(self):
