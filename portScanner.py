@@ -4,7 +4,6 @@ from datetime import datetime
 import tkinter as tk
 from tkinter import ttk, messagebox
 import concurrent.futures
-from typing import Optional
 # COMMIT_MARKER: init-feature-commit-1
 
 
@@ -32,6 +31,10 @@ class PortScannerApp:
 
         self.stop_event = threading.Event()
         self.scan_thread = None
+        self.active_futures = set()
+        self.submitted_jobs = 0
+        self.completed_jobs = 0
+        self.open_ports_found = 0
 
         self.create_widgets()
 
@@ -186,6 +189,10 @@ class PortScannerApp:
             return
 
         self.stop_event.clear()
+        self.active_futures.clear()
+        self.submitted_jobs = 0
+        self.completed_jobs = 0
+        self.open_ports_found = 0
         self.clear_results()
 
         self.scan_button.config(state=tk.DISABLED)
@@ -200,7 +207,7 @@ class PortScannerApp:
         try:
             start, end = self.get_port_range()
             total = max(0, end - start + 1)
-            self.progress_var.set(0)
+            self.progress_var.set(self.completed_jobs)
             self.progress.config(maximum=total)
         except Exception:
             # if UI not fully initialized, ignore for now
@@ -232,11 +239,40 @@ class PortScannerApp:
         return t
         # Commit 4 note: basic validation exists for thread count
 
+    def scan_single_port(self, target, port):
+        if self.stop_event.is_set():
+            return (port, False)
+
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                result = sock.connect_ex((target, port))
+                return (port, result == 0)
+        except Exception:
+            return (port, False)
+
     def stop_scan(self):
         self.stop_event.set()
+        for future in list(self.active_futures):
+            future.cancel()
         self.write_result("\n Scan stopped by user.\n", "error")
         self.scan_button.config(state=tk.NORMAL)
         self.stop_button.config(state=tk.DISABLED)
+
+    def _record_scan_result(self, port, is_open):
+        self.completed_jobs += 1
+        self.progress_var.set(self.completed_jobs)
+        if is_open:
+            self.open_ports_found += 1
+            self.write_result(f"✔ Port {port} is OPEN\n", "open")
+
+    def _queue_result_text(self, text, tag=None):
+        self.root.after(0, self.write_result, text, tag)
+
+    def _queue_reset_buttons(self):
+        self.root.after(0, self.reset_buttons)
+
+    def _queue_error_dialog(self, title, message):
+        self.root.after(0, messagebox.showerror, title, message)
 
     def toggle_maximize(self):
         if not self.is_maximized:
@@ -261,51 +297,63 @@ class PortScannerApp:
         target = self.host_entry.get().strip()
 
         if not target:
-            messagebox.showerror("Error", "Please enter a hostname or IP address")
-            self.reset_buttons()
+            self._queue_error_dialog("Error", "Please enter a hostname or IP address")
+            self._queue_reset_buttons()
             return
 
         try:
             ip = socket.gethostbyname(target)
         except socket.gaierror:
-            self.write_result(" Hostname could not be resolved\n", "error")
-            self.reset_buttons()
+            self._queue_result_text(" Hostname could not be resolved\n", "error")
+            self._queue_reset_buttons()
             return
 
-        self.write_result(f"Target: {target}\n")
-        self.write_result(f"IP Address: {ip}\n")
-        self.write_result(f"Started at: {datetime.now()}\n", "info")
-        self.write_result("-" * 40 + "\n")
+        self._queue_result_text(f"Target: {target}\n")
+        self._queue_result_text(f"IP Address: {ip}\n")
+        self._queue_result_text(f"Started at: {datetime.now()}\n", "info")
+        self._queue_result_text("-" * 40 + "\n")
 
         socket.setdefaulttimeout(0.5)
 
-        # Use configured port range (initial setup). Replace with threaded pool later.
+        # Submit scan jobs concurrently using user-selected worker count.
         start_port, end_port = self.get_port_range()
-        port_count = 0
-        for port in range(start_port, end_port + 1):
-            if self.stop_event.is_set():
-                break
+        ports = list(range(start_port, end_port + 1))
+        workers = self.get_thread_count()
+        self._queue_result_text(f"Workers: {workers}\n", "info")
 
-            try:
-                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                result = s.connect_ex((target, port))
-                if result == 0:
-                    self.write_result(f"✔ Port {port} is OPEN\n", "open")
-                s.close()
-            except Exception:
-                pass
-            # update progress (schedule on main thread)
-            port_count += 1
-            try:
-                self.root.after(0, self.progress_var.set, port_count)
-            except Exception:
-                pass
+        with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
+            for port in ports:
+                if self.stop_event.is_set():
+                    break
+                future = executor.submit(self.scan_single_port, target, port)
+                self.active_futures.add(future)
 
-        if not self.stop_event.is_set():
-            self.write_result("\n Scan completed.\n", "info")
-        # Commit 5 note: scan completion logged; future commit will add concurrent executor
+            self.submitted_jobs = len(self.active_futures)
+            self.root.after(0, self.progress.config, {"maximum": max(1, self.submitted_jobs)})
 
-        self.reset_buttons()
+            for future in concurrent.futures.as_completed(self.active_futures):
+                if self.stop_event.is_set():
+                    break
+                try:
+                    port, is_open = future.result()
+                except Exception:
+                    self.active_futures.discard(future)
+                    continue
+                self.root.after(0, self._record_scan_result, port, is_open)
+                self.active_futures.discard(future)
+
+        if self.stop_event.is_set():
+            self._queue_result_text(
+                f"\n Scan stopped after {self.completed_jobs}/{self.submitted_jobs} checks.\n",
+                "error",
+            )
+        else:
+            self._queue_result_text(
+                f"\n Scan completed. Open ports found: {self.open_ports_found}\n",
+                "info",
+            )
+
+        self._queue_reset_buttons()
 
     # HELPERS
     def clear_results(self):
