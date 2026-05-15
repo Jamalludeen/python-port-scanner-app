@@ -161,6 +161,7 @@ class PortScannerApp:
             bg=self.BG_COLOR,
         )
         self.progress_label.pack(side=tk.LEFT)
+        # Commit 3 note: progress label added
         self.progress = ttk.Progressbar(
             progress_frame, orient=tk.HORIZONTAL, length=400, mode="determinate", variable=self.progress_var
         )
