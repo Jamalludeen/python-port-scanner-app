@@ -265,6 +265,9 @@ class PortScannerApp:
             self.open_ports_found += 1
             self.write_result(f"✔ Port {port} is OPEN\n", "open")
 
+    def _queue_result_text(self, text, tag=None):
+        self.root.after(0, self.write_result, text, tag)
+
     def toggle_maximize(self):
         if not self.is_maximized:
             self.normal_geometry = self.root.geometry()
@@ -299,10 +302,10 @@ class PortScannerApp:
             self.reset_buttons()
             return
 
-        self.write_result(f"Target: {target}\n")
-        self.write_result(f"IP Address: {ip}\n")
-        self.write_result(f"Started at: {datetime.now()}\n", "info")
-        self.write_result("-" * 40 + "\n")
+        self._queue_result_text(f"Target: {target}\n")
+        self._queue_result_text(f"IP Address: {ip}\n")
+        self._queue_result_text(f"Started at: {datetime.now()}\n", "info")
+        self._queue_result_text("-" * 40 + "\n")
 
         socket.setdefaulttimeout(0.5)
 
@@ -310,7 +313,7 @@ class PortScannerApp:
         start_port, end_port = self.get_port_range()
         ports = list(range(start_port, end_port + 1))
         workers = self.get_thread_count()
-        self.write_result(f"Workers: {workers}\n", "info")
+        self._queue_result_text(f"Workers: {workers}\n", "info")
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
             for port in ports:
@@ -334,12 +337,12 @@ class PortScannerApp:
                 self.active_futures.discard(future)
 
         if self.stop_event.is_set():
-            self.write_result(
+            self._queue_result_text(
                 f"\n Scan stopped after {self.completed_jobs}/{self.submitted_jobs} checks.\n",
                 "error",
             )
         else:
-            self.write_result(
+            self._queue_result_text(
                 f"\n Scan completed. Open ports found: {self.open_ports_found}\n",
                 "info",
             )
