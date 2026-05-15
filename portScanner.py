@@ -189,6 +189,10 @@ class PortScannerApp:
             return
 
         self.stop_event.clear()
+        self.active_futures.clear()
+        self.submitted_jobs = 0
+        self.completed_jobs = 0
+        self.open_ports_found = 0
         self.clear_results()
 
         self.scan_button.config(state=tk.DISABLED)
@@ -203,7 +207,7 @@ class PortScannerApp:
         try:
             start, end = self.get_port_range()
             total = max(0, end - start + 1)
-            self.progress_var.set(0)
+            self.progress_var.set(self.completed_jobs)
             self.progress.config(maximum=total)
         except Exception:
             # if UI not fully initialized, ignore for now
