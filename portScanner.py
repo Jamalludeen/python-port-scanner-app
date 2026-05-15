@@ -25,7 +25,10 @@ class PortScannerApp:
         self.root.title("Port Scanner")
         self.root.geometry("1300x680")
         self.root.configure(bg=self.BG_COLOR)
-        self.root.resizable(False, False)
+        self.root.resizable(True, True)
+
+        self.is_maximized = False
+        self.normal_geometry = self.root.geometry()
 
         self.stop_event = threading.Event()
         self.scan_thread = None
@@ -110,6 +113,16 @@ class PortScannerApp:
             command=self.stop_scan,
         )
         self.stop_button.pack(side=tk.LEFT, padx=8)
+
+        self.maximize_button = tk.Button(
+            frame,
+            text="Maximize",
+            font=("Segoe UI", 12, "bold"),
+            bg=self.SUCCESS_COLOR,
+            fg="black",
+            command=self.toggle_maximize,
+        )
+        self.maximize_button.pack(side=tk.LEFT, padx=8)
 
         # Thread count (initial UI only)
         tc_label = tk.Label(
@@ -224,6 +237,25 @@ class PortScannerApp:
         self.write_result("\n Scan stopped by user.\n", "error")
         self.scan_button.config(state=tk.NORMAL)
         self.stop_button.config(state=tk.DISABLED)
+
+    def toggle_maximize(self):
+        if not self.is_maximized:
+            self.normal_geometry = self.root.geometry()
+            try:
+                self.root.state("zoomed")
+            except tk.TclError:
+                self.root.attributes("-zoomed", True)
+            self.maximize_button.config(text="Restore")
+            self.is_maximized = True
+        else:
+            try:
+                self.root.state("normal")
+            except tk.TclError:
+                self.root.attributes("-zoomed", False)
+            if self.normal_geometry:
+                self.root.geometry(self.normal_geometry)
+            self.maximize_button.config(text="Maximize")
+            self.is_maximized = False
 
     def scan_ports(self):
         target = self.host_entry.get().strip()
