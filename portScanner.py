@@ -235,6 +235,17 @@ class PortScannerApp:
         return t
         # Commit 4 note: basic validation exists for thread count
 
+    def scan_single_port(self, target, port):
+        if self.stop_event.is_set():
+            return (port, False)
+
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                result = sock.connect_ex((target, port))
+                return (port, result == 0)
+        except Exception:
+            return (port, False)
+
     def stop_scan(self):
         self.stop_event.set()
         self.write_result("\n Scan stopped by user.\n", "error")
