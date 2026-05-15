@@ -4,7 +4,6 @@ from datetime import datetime
 import tkinter as tk
 from tkinter import ttk, messagebox
 import concurrent.futures
-from typing import Optional
 # COMMIT_MARKER: init-feature-commit-1
 
 
@@ -32,6 +31,10 @@ class PortScannerApp:
 
         self.stop_event = threading.Event()
         self.scan_thread = None
+        self.active_futures = set()
+        self.submitted_jobs = 0
+        self.completed_jobs = 0
+        self.open_ports_found = 0
 
         self.create_widgets()
 
