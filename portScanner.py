@@ -320,6 +320,7 @@ class PortScannerApp:
                 self.active_futures.add(future)
 
             self.submitted_jobs = len(self.active_futures)
+            self.root.after(0, self.progress.config, {"maximum": max(1, self.submitted_jobs)})
 
             for future in concurrent.futures.as_completed(self.active_futures):
                 if self.stop_event.is_set():
@@ -327,8 +328,10 @@ class PortScannerApp:
                 try:
                     port, is_open = future.result()
                 except Exception:
+                    self.active_futures.discard(future)
                     continue
                 self.root.after(0, self._record_scan_result, port, is_open)
+                self.active_futures.discard(future)
 
         if not self.stop_event.is_set():
             self.write_result("\n Scan completed.\n", "info")
