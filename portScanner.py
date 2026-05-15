@@ -333,9 +333,16 @@ class PortScannerApp:
                 self.root.after(0, self._record_scan_result, port, is_open)
                 self.active_futures.discard(future)
 
-        if not self.stop_event.is_set():
-            self.write_result("\n Scan completed.\n", "info")
-        # Commit 5 note: scan completion logged; future commit will add concurrent executor
+        if self.stop_event.is_set():
+            self.write_result(
+                f"\n Scan stopped after {self.completed_jobs}/{self.submitted_jobs} checks.\n",
+                "error",
+            )
+        else:
+            self.write_result(
+                f"\n Scan completed. Open ports found: {self.open_ports_found}\n",
+                "info",
+            )
 
         self.reset_buttons()
 
