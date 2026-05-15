@@ -252,6 +252,13 @@ class PortScannerApp:
         self.scan_button.config(state=tk.NORMAL)
         self.stop_button.config(state=tk.DISABLED)
 
+    def _record_scan_result(self, port, is_open):
+        self.completed_jobs += 1
+        self.progress_var.set(self.completed_jobs)
+        if is_open:
+            self.open_ports_found += 1
+            self.write_result(f"✔ Port {port} is OPEN\n", "open")
+
     def toggle_maximize(self):
         if not self.is_maximized:
             self.normal_geometry = self.root.geometry()
