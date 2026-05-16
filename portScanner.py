@@ -194,6 +194,18 @@ class PortScannerApp:
         )
         self.clear_button.pack(side=tk.LEFT, padx=8)
 
+        # Banner detection checkbox (UI placeholder)
+        self.banner_var = tk.BooleanVar(value=False)
+        self.banner_check = tk.Checkbutton(
+            frame,
+            text="Detect banners",
+            variable=self.banner_var,
+            fg=self.FG_COLOR,
+            bg=self.BG_COLOR,
+            selectcolor=self.BG_COLOR,
+        )
+        self.banner_check.pack(side=tk.LEFT, padx=8)
+
     def create_results_section(self):
         frame = tk.Frame(self.root, bg=self.BG_COLOR)
         frame.pack(pady=15, fill=tk.BOTH, expand=True)
