@@ -2,7 +2,7 @@ import socket
 import threading
 from datetime import datetime
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, filedialog
 import concurrent.futures
 # COMMIT_MARKER: init-feature-commit-1
 
@@ -157,6 +157,16 @@ class PortScannerApp:
         self.thread_count_spinbox.delete(0, tk.END)
         self.thread_count_spinbox.insert(0, str(self.DEFAULT_THREAD_COUNT))
         self.thread_count_spinbox.pack(side=tk.LEFT, padx=5)
+
+        self.export_button = tk.Button(
+            frame,
+            text="Export",
+            font=("Segoe UI", 10, "bold"),
+            bg="#6c6cff",
+            fg="white",
+            command=self.export_results,
+        )
+        self.export_button.pack(side=tk.LEFT, padx=8)
 
     def create_results_section(self):
         frame = tk.Frame(self.root, bg=self.BG_COLOR)
@@ -378,6 +388,25 @@ class PortScannerApp:
             )
 
         self._queue_reset_buttons()
+
+    def export_results(self):
+        content = self.results_box.get("1.0", tk.END).strip()
+        if not content:
+            messagebox.showinfo("Export", "No results to export")
+            return
+        path = filedialog.asksaveasfilename(
+            defaultextension=".txt",
+            filetypes=[("Text files", "*.txt"), ("All files", "*")],
+            title="Save scan results",
+        )
+        if not path:
+            return
+        try:
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(content)
+            messagebox.showinfo("Export", f"Saved results to {path}")
+        except Exception as e:
+            messagebox.showerror("Export Error", str(e))
 
     # HELPERS
     def clear_results(self):
