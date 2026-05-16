@@ -206,6 +206,16 @@ class PortScannerApp:
         )
         self.banner_check.pack(side=tk.LEFT, padx=8)
 
+        self.help_button = tk.Button(
+            frame,
+            text="Help",
+            font=("Segoe UI", 10, "bold"),
+            bg="#2196f3",
+            fg="white",
+            command=self.show_help,
+        )
+        self.help_button.pack(side=tk.LEFT, padx=8)
+
     def create_results_section(self):
         frame = tk.Frame(self.root, bg=self.BG_COLOR)
         frame.pack(pady=15, fill=tk.BOTH, expand=True)
@@ -345,6 +355,16 @@ class PortScannerApp:
 
     def _queue_error_dialog(self, title, message):
         self.root.after(0, messagebox.showerror, title, message)
+
+    def show_help(self):
+        msg = (
+            "Port Scanner\n\n"
+            "- Enter a target host or IP and press Scan.\n"
+            "- Adjust start/end ports, thread count, and timeout.\n"
+            "- Use Export/Copy to save results.\n"
+            "- F11 toggles maximize.\n"
+        )
+        messagebox.showinfo("Help", msg)
 
     def toggle_maximize(self):
         if not self.is_maximized:
