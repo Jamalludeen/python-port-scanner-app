@@ -18,6 +18,7 @@ class PortScannerApp:
     DEFAULT_START_PORT = 1
     DEFAULT_END_PORT = 1024
     DEFAULT_THREAD_COUNT = 50
+    DEFAULT_TIMEOUT = 0.5
     APP_VERSION = "0.2"
 
     def __init__(self, root):
@@ -96,6 +97,19 @@ class PortScannerApp:
         self.end_port_entry = tk.Entry(frame, width=6, font=("Segoe UI", 10))
         self.end_port_entry.insert(0, str(self.DEFAULT_END_PORT))
         self.end_port_entry.pack(side=tk.LEFT, padx=5)
+
+        # Timeout input
+        to_label = tk.Label(
+            frame,
+            text="Timeout(s):",
+            font=("Segoe UI", 10),
+            fg=self.FG_COLOR,
+            bg=self.BG_COLOR,
+        )
+        to_label.pack(side=tk.LEFT, padx=(8, 5))
+        self.timeout_entry = tk.Entry(frame, width=6, font=("Segoe UI", 10))
+        self.timeout_entry.insert(0, str(self.DEFAULT_TIMEOUT))
+        self.timeout_entry.pack(side=tk.LEFT, padx=5)
 
         self.scan_button = tk.Button(
             frame,
@@ -239,6 +253,15 @@ class PortScannerApp:
             t = 1
         return t
         # Commit 4 note: basic validation exists for thread count
+
+    def get_timeout(self):
+        try:
+            v = float(self.timeout_entry.get())
+        except Exception:
+            v = self.DEFAULT_TIMEOUT
+        if v <= 0:
+            v = self.DEFAULT_TIMEOUT
+        return v
 
     def scan_single_port(self, target, port):
         if self.stop_event.is_set():
