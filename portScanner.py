@@ -168,6 +168,16 @@ class PortScannerApp:
         )
         self.export_button.pack(side=tk.LEFT, padx=8)
 
+        self.copy_button = tk.Button(
+            frame,
+            text="Copy",
+            font=("Segoe UI", 10, "bold"),
+            bg="#4caf50",
+            fg="white",
+            command=self.copy_results,
+        )
+        self.copy_button.pack(side=tk.LEFT, padx=8)
+
     def create_results_section(self):
         frame = tk.Frame(self.root, bg=self.BG_COLOR)
         frame.pack(pady=15, fill=tk.BOTH, expand=True)
@@ -407,6 +417,18 @@ class PortScannerApp:
             messagebox.showinfo("Export", f"Saved results to {path}")
         except Exception as e:
             messagebox.showerror("Export Error", str(e))
+
+    def copy_results(self):
+        content = self.results_box.get("1.0", tk.END).strip()
+        if not content:
+            messagebox.showinfo("Copy", "No results to copy")
+            return
+        try:
+            self.root.clipboard_clear()
+            self.root.clipboard_append(content)
+            messagebox.showinfo("Copy", "Results copied to clipboard")
+        except Exception as e:
+            messagebox.showerror("Copy Error", str(e))
 
     # HELPERS
     def clear_results(self):
