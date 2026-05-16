@@ -1,0 +1,2 @@
+# No external dependencies required (Tkinter is part of the Python standard library)
+# If packaging, use the system Python that includes tkinter

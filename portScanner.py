@@ -2,7 +2,7 @@ import socket
 import threading
 from datetime import datetime
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, filedialog
 import concurrent.futures
 # COMMIT_MARKER: init-feature-commit-1
 
@@ -18,10 +18,12 @@ class PortScannerApp:
     DEFAULT_START_PORT = 1
     DEFAULT_END_PORT = 1024
     DEFAULT_THREAD_COUNT = 50
+    DEFAULT_TIMEOUT = 0.5
+    APP_VERSION = "0.2"
 
     def __init__(self, root):
         self.root = root
-        self.root.title("Port Scanner")
+        self.root.title(f"Port Scanner v{self.APP_VERSION}")
         self.root.geometry("1300x680")
         self.root.configure(bg=self.BG_COLOR)
         self.root.resizable(True, True)
@@ -37,6 +39,12 @@ class PortScannerApp:
         self.open_ports_found = 0
 
         self.create_widgets()
+        # Keyboard shortcuts
+        try:
+            self.root.bind('<F11>', lambda e: self.toggle_maximize())
+            self.root.bind('<Escape>', lambda e: self.toggle_maximize())
+        except Exception:
+            pass
 
     # UI adjustment
     def create_widgets(self):
@@ -96,6 +104,19 @@ class PortScannerApp:
         self.end_port_entry.insert(0, str(self.DEFAULT_END_PORT))
         self.end_port_entry.pack(side=tk.LEFT, padx=5)
 
+        # Timeout input
+        to_label = tk.Label(
+            frame,
+            text="Timeout(s):",
+            font=("Segoe UI", 10),
+            fg=self.FG_COLOR,
+            bg=self.BG_COLOR,
+        )
+        to_label.pack(side=tk.LEFT, padx=(8, 5))
+        self.timeout_entry = tk.Entry(frame, width=6, font=("Segoe UI", 10))
+        self.timeout_entry.insert(0, str(self.DEFAULT_TIMEOUT))
+        self.timeout_entry.pack(side=tk.LEFT, padx=5)
+
         self.scan_button = tk.Button(
             frame,
             text="Scan",
@@ -142,6 +163,58 @@ class PortScannerApp:
         self.thread_count_spinbox.delete(0, tk.END)
         self.thread_count_spinbox.insert(0, str(self.DEFAULT_THREAD_COUNT))
         self.thread_count_spinbox.pack(side=tk.LEFT, padx=5)
+
+        self.export_button = tk.Button(
+            frame,
+            text="Export",
+            font=("Segoe UI", 10, "bold"),
+            bg="#6c6cff",
+            fg="white",
+            command=self.export_results,
+        )
+        self.export_button.pack(side=tk.LEFT, padx=8)
+
+        self.copy_button = tk.Button(
+            frame,
+            text="Copy",
+            font=("Segoe UI", 10, "bold"),
+            bg="#4caf50",
+            fg="white",
+            command=self.copy_results,
+        )
+        self.copy_button.pack(side=tk.LEFT, padx=8)
+
+        self.clear_button = tk.Button(
+            frame,
+            text="Clear",
+            font=("Segoe UI", 10, "bold"),
+            bg="#777777",
+            fg="white",
+            command=self.clear_results,
+        )
+        self.clear_button.pack(side=tk.LEFT, padx=8)
+
+        # Banner detection checkbox (UI placeholder)
+        self.banner_var = tk.BooleanVar(value=False)
+        self.banner_check = tk.Checkbutton(
+            frame,
+            text="Detect banners",
+            variable=self.banner_var,
+            fg=self.FG_COLOR,
+            bg=self.BG_COLOR,
+            selectcolor=self.BG_COLOR,
+        )
+        self.banner_check.pack(side=tk.LEFT, padx=8)
+
+        self.help_button = tk.Button(
+            frame,
+            text="Help",
+            font=("Segoe UI", 10, "bold"),
+            bg="#2196f3",
+            fg="white",
+            command=self.show_help,
+        )
+        self.help_button.pack(side=tk.LEFT, padx=8)
 
     def create_results_section(self):
         frame = tk.Frame(self.root, bg=self.BG_COLOR)
@@ -239,6 +312,15 @@ class PortScannerApp:
         return t
         # Commit 4 note: basic validation exists for thread count
 
+    def get_timeout(self):
+        try:
+            v = float(self.timeout_entry.get())
+        except Exception:
+            v = self.DEFAULT_TIMEOUT
+        if v <= 0:
+            v = self.DEFAULT_TIMEOUT
+        return v
+
     def scan_single_port(self, target, port):
         if self.stop_event.is_set():
             return (port, False)
@@ -273,6 +355,16 @@ class PortScannerApp:
 
     def _queue_error_dialog(self, title, message):
         self.root.after(0, messagebox.showerror, title, message)
+
+    def show_help(self):
+        msg = (
+            "Port Scanner\n\n"
+            "- Enter a target host or IP and press Scan.\n"
+            "- Adjust start/end ports, thread count, and timeout.\n"
+            "- Use Export/Copy to save results.\n"
+            "- F11 toggles maximize.\n"
+        )
+        messagebox.showinfo("Help", msg)
 
     def toggle_maximize(self):
         if not self.is_maximized:
@@ -313,7 +405,7 @@ class PortScannerApp:
         self._queue_result_text(f"Started at: {datetime.now()}\n", "info")
         self._queue_result_text("-" * 40 + "\n")
 
-        socket.setdefaulttimeout(0.5)
+        socket.setdefaulttimeout(self.get_timeout())
 
         # Submit scan jobs concurrently using user-selected worker count.
         start_port, end_port = self.get_port_range()
@@ -354,6 +446,37 @@ class PortScannerApp:
             )
 
         self._queue_reset_buttons()
+
+    def export_results(self):
+        content = self.results_box.get("1.0", tk.END).strip()
+        if not content:
+            messagebox.showinfo("Export", "No results to export")
+            return
+        path = filedialog.asksaveasfilename(
+            defaultextension=".txt",
+            filetypes=[("Text files", "*.txt"), ("All files", "*")],
+            title="Save scan results",
+        )
+        if not path:
+            return
+        try:
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(content)
+            messagebox.showinfo("Export", f"Saved results to {path}")
+        except Exception as e:
+            messagebox.showerror("Export Error", str(e))
+
+    def copy_results(self):
+        content = self.results_box.get("1.0", tk.END).strip()
+        if not content:
+            messagebox.showinfo("Copy", "No results to copy")
+            return
+        try:
+            self.root.clipboard_clear()
+            self.root.clipboard_append(content)
+            messagebox.showinfo("Copy", "Results copied to clipboard")
+        except Exception as e:
+            messagebox.showerror("Copy Error", str(e))
 
     # HELPERS
     def clear_results(self):
