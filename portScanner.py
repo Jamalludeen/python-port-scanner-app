@@ -22,7 +22,7 @@ class PortScannerApp:
 
     def __init__(self, root):
         self.root = root
-        self.root.title("Port Scanner")
+        self.root.title(f"Port Scanner v{self.APP_VERSION}")
         self.root.geometry("1300x680")
         self.root.configure(bg=self.BG_COLOR)
         self.root.resizable(True, True)
