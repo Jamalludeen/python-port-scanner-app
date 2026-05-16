@@ -184,6 +184,16 @@ class PortScannerApp:
         )
         self.copy_button.pack(side=tk.LEFT, padx=8)
 
+        self.clear_button = tk.Button(
+            frame,
+            text="Clear",
+            font=("Segoe UI", 10, "bold"),
+            bg="#777777",
+            fg="white",
+            command=self.clear_results,
+        )
+        self.clear_button.pack(side=tk.LEFT, padx=8)
+
     def create_results_section(self):
         frame = tk.Frame(self.root, bg=self.BG_COLOR)
         frame.pack(pady=15, fill=tk.BOTH, expand=True)
