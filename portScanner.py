@@ -18,6 +18,7 @@ class PortScannerApp:
     DEFAULT_START_PORT = 1
     DEFAULT_END_PORT = 1024
     DEFAULT_THREAD_COUNT = 50
+    APP_VERSION = "0.2"
 
     def __init__(self, root):
         self.root = root
