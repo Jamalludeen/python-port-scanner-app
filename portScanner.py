@@ -39,6 +39,12 @@ class PortScannerApp:
         self.open_ports_found = 0
 
         self.create_widgets()
+        # Keyboard shortcuts
+        try:
+            self.root.bind('<F11>', lambda e: self.toggle_maximize())
+            self.root.bind('<Escape>', lambda e: self.toggle_maximize())
+        except Exception:
+            pass
 
     # UI adjustment
     def create_widgets(self):
