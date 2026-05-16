@@ -164,8 +164,12 @@ class PortScannerApp:
         self.thread_count_spinbox.insert(0, str(self.DEFAULT_THREAD_COUNT))
         self.thread_count_spinbox.pack(side=tk.LEFT, padx=5)
 
+        # Toolbar for secondary actions so buttons don't overflow
+        toolbar = tk.Frame(self.root, bg=self.BG_COLOR)
+        toolbar.pack(fill=tk.X, padx=10, pady=(6, 0))
+
         self.export_button = tk.Button(
-            frame,
+            toolbar,
             text="Export",
             font=("Segoe UI", 10, "bold"),
             bg="#6c6cff",
@@ -175,7 +179,7 @@ class PortScannerApp:
         self.export_button.pack(side=tk.LEFT, padx=8)
 
         self.copy_button = tk.Button(
-            frame,
+            toolbar,
             text="Copy",
             font=("Segoe UI", 10, "bold"),
             bg="#4caf50",
@@ -185,7 +189,7 @@ class PortScannerApp:
         self.copy_button.pack(side=tk.LEFT, padx=8)
 
         self.clear_button = tk.Button(
-            frame,
+            toolbar,
             text="Clear",
             font=("Segoe UI", 10, "bold"),
             bg="#777777",
@@ -197,7 +201,7 @@ class PortScannerApp:
         # Banner detection checkbox (UI placeholder)
         self.banner_var = tk.BooleanVar(value=False)
         self.banner_check = tk.Checkbutton(
-            frame,
+            toolbar,
             text="Detect banners",
             variable=self.banner_var,
             fg=self.FG_COLOR,
@@ -207,7 +211,7 @@ class PortScannerApp:
         self.banner_check.pack(side=tk.LEFT, padx=8)
 
         self.help_button = tk.Button(
-            frame,
+            toolbar,
             text="Help",
             font=("Segoe UI", 10, "bold"),
             bg="#2196f3",
