@@ -337,7 +337,7 @@ class PortScannerApp:
         self._queue_result_text(f"Started at: {datetime.now()}\n", "info")
         self._queue_result_text("-" * 40 + "\n")
 
-        socket.setdefaulttimeout(0.5)
+        socket.setdefaulttimeout(self.get_timeout())
 
         # Submit scan jobs concurrently using user-selected worker count.
         start_port, end_port = self.get_port_range()
