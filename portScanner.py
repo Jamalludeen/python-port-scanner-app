@@ -63,6 +63,15 @@ class PortScannerApp:
         # About tab placeholder (will fill in later commits)
         self.about_frame = tk.Frame(self.root, bg=self.BG_COLOR)
         self.notebook.add(self.about_frame, text="About")
+        # commit 5: about header
+        about_title = tk.Label(
+            self.about_frame,
+            text="About Port Scanner",
+            font=("Segoe UI", 18, "bold"),
+            fg=self.ACCENT_COLOR,
+            bg=self.BG_COLOR,
+        )
+        about_title.pack(pady=(20, 6))
 
     def create_title(self):
         title = tk.Label(
