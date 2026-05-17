@@ -136,6 +136,25 @@ class PortScannerApp:
         links_frame = tk.Frame(self.about_frame, bg=self.BG_COLOR)
         links_frame.pack()
 
+        credits_label = tk.Label(
+            self.about_frame,
+            text="Credits: Built by You",
+            font=("Segoe UI", 10),
+            fg=self.FG_COLOR,
+            bg=self.BG_COLOR,
+        )
+        credits_label.pack(pady=(12, 6))
+
+        about_dialog_btn = tk.Button(
+            self.about_frame,
+            text="About Dialog",
+            font=("Segoe UI", 10, "bold"),
+            bg="#89b4fa",
+            fg="black",
+            command=lambda: messagebox.showinfo("About", f"Port Scanner v{self.APP_VERSION}\nBuilt by You"),
+        )
+        about_dialog_btn.pack()
+
         visit_btn = tk.Button(
             links_frame,
             text="Visit Project",
