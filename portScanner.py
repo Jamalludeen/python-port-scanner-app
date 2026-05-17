@@ -133,6 +133,29 @@ class PortScannerApp:
         )
         copy_license_btn.pack(pady=(0, 12))
 
+        links_frame = tk.Frame(self.about_frame, bg=self.BG_COLOR)
+        links_frame.pack()
+
+        visit_btn = tk.Button(
+            links_frame,
+            text="Visit Project",
+            font=("Segoe UI", 10, "bold"),
+            bg="#4caf50",
+            fg="white",
+            command=lambda: webbrowser.open("https://example.com"),
+        )
+        visit_btn.pack(side=tk.LEFT, padx=6)
+
+        close_about_btn = tk.Button(
+            links_frame,
+            text="Close About",
+            font=("Segoe UI", 10, "bold"),
+            bg="#777777",
+            fg="white",
+            command=lambda: self.notebook.select(self.main_frame),
+        )
+        close_about_btn.pack(side=tk.LEFT, padx=6)
+
     def create_title(self):
         title = tk.Label(
             self.root,
