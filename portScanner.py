@@ -4,6 +4,7 @@ from datetime import datetime
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 import concurrent.futures
+import webbrowser
 # COMMIT_MARKER: init-feature-commit-1
 
 
@@ -48,9 +49,131 @@ class PortScannerApp:
 
     # UI adjustment
     def create_widgets(self):
+        # Create notebook to host main app and About tab
+        self.notebook = ttk.Notebook(self.root)
+        self.main_frame = tk.Frame(self.root, bg=self.BG_COLOR)
+        self.notebook.add(self.main_frame, text="Main")
+        self.notebook.pack(fill=tk.BOTH, expand=True)
+
+        # Populate main frame
         self.create_title()
         self.create_input_section()
         self.create_results_section()
+
+        # About tab placeholder (will fill in later commits)
+        self.about_frame = tk.Frame(self.root, bg=self.BG_COLOR)
+        self.notebook.add(self.about_frame, text="About")
+        # commit 5: about header
+        about_title = tk.Label(
+            self.about_frame,
+            text="About Port Scanner",
+            font=("Segoe UI", 18, "bold"),
+            fg=self.ACCENT_COLOR,
+            bg=self.BG_COLOR,
+        )
+        about_title.pack(pady=(20, 6))
+        about_version = tk.Label(
+            self.about_frame,
+            text=f"Version: {self.APP_VERSION}",
+            font=("Segoe UI", 11),
+            fg=self.FG_COLOR,
+            bg=self.BG_COLOR,
+        )
+        about_version.pack()
+
+        about_author = tk.Label(
+            self.about_frame,
+            text="Author: Your Name",
+            font=("Segoe UI", 11),
+            fg=self.FG_COLOR,
+            bg=self.BG_COLOR,
+        )
+        about_author.pack(pady=(0, 8))
+
+        about_desc = tk.Text(
+            self.about_frame,
+            height=6,
+            width=60,
+            bg="#11111b",
+            fg=self.FG_COLOR,
+            wrap=tk.WORD,
+        )
+        about_desc.insert(tk.END, "A lightweight GUI port scanner for quick network exploration and learning. Use responsibly.")
+        about_desc.config(state=tk.DISABLED)
+        about_desc.pack(padx=20, pady=(0, 12))
+
+        license_label = tk.Label(
+            self.about_frame,
+            text="License:",
+            font=("Segoe UI", 12, "bold"),
+            fg=self.FG_COLOR,
+            bg=self.BG_COLOR,
+        )
+        license_label.pack()
+
+        license_text = tk.Text(
+            self.about_frame,
+            height=6,
+            width=60,
+            bg="#11111b",
+            fg=self.FG_COLOR,
+            wrap=tk.WORD,
+        )
+        license_text.insert(tk.END, "MIT License - see LICENSE file")
+        license_text.config(state=tk.DISABLED)
+        license_text.pack(padx=20, pady=(0, 8))
+
+        copy_license_btn = tk.Button(
+            self.about_frame,
+            text="Copy License",
+            font=("Segoe UI", 10, "bold"),
+            bg="#6c6cff",
+            fg="white",
+            command=lambda: self.root.clipboard_append("MIT License - see LICENSE file"),
+        )
+        copy_license_btn.pack(pady=(0, 12))
+
+        links_frame = tk.Frame(self.about_frame, bg=self.BG_COLOR)
+        links_frame.pack()
+
+        credits_label = tk.Label(
+            self.about_frame,
+            text="Credits: Built by You",
+            font=("Segoe UI", 10),
+            fg=self.FG_COLOR,
+            bg=self.BG_COLOR,
+        )
+        credits_label.pack(pady=(12, 6))
+
+        about_dialog_btn = tk.Button(
+            self.about_frame,
+            text="About Dialog",
+            font=("Segoe UI", 10, "bold"),
+            bg="#89b4fa",
+            fg="black",
+            command=lambda: messagebox.showinfo("About", f"Port Scanner v{self.APP_VERSION}\nBuilt by You"),
+        )
+        about_dialog_btn.pack()
+
+        visit_btn = tk.Button(
+            links_frame,
+            text="Visit Project",
+            font=("Segoe UI", 10, "bold"),
+            bg="#4caf50",
+            fg="white",
+            command=lambda: webbrowser.open("https://example.com"),
+        )
+        visit_btn.pack(side=tk.LEFT, padx=6)
+
+        close_about_btn = tk.Button(
+            links_frame,
+            text="Close About",
+            font=("Segoe UI", 10, "bold"),
+            bg="#777777",
+            fg="white",
+            command=lambda: self.notebook.select(self.main_frame),
+        )
+        close_about_btn.pack(side=tk.LEFT, padx=6)
 
     def create_title(self):
         title = tk.Label(
@@ -61,6 +184,8 @@ class PortScannerApp:
             bg=self.BG_COLOR,
         )
         title.pack(pady=15)
+        # commit 3: move title widget into main_frame for tabbed layout
+        title.master = self.main_frame
 
     def create_input_section(self):
         frame = tk.Frame(self.root, bg=self.BG_COLOR)
