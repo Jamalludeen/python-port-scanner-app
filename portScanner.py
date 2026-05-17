@@ -59,6 +59,10 @@ class PortScannerApp:
         self.create_input_section()
         self.create_results_section()
 
+        # About tab placeholder (will fill in later commits)
+        self.about_frame = tk.Frame(self.root, bg=self.BG_COLOR)
+        self.notebook.add(self.about_frame, text="About")
+
     def create_title(self):
         title = tk.Label(
             self.root,
