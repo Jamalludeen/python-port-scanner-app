@@ -72,6 +72,23 @@ class PortScannerApp:
             bg=self.BG_COLOR,
         )
         about_title.pack(pady=(20, 6))
+        about_version = tk.Label(
+            self.about_frame,
+            text=f"Version: {self.APP_VERSION}",
+            font=("Segoe UI", 11),
+            fg=self.FG_COLOR,
+            bg=self.BG_COLOR,
+        )
+        about_version.pack()
+
+        about_author = tk.Label(
+            self.about_frame,
+            text="Author: Your Name",
+            font=("Segoe UI", 11),
+            fg=self.FG_COLOR,
+            bg=self.BG_COLOR,
+        )
+        about_author.pack(pady=(0, 8))
 
     def create_title(self):
         title = tk.Label(
