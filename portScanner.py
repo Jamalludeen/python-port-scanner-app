@@ -72,6 +72,8 @@ class PortScannerApp:
             bg=self.BG_COLOR,
         )
         title.pack(pady=15)
+        # commit 3: move title widget into main_frame for tabbed layout
+        title.master = self.main_frame
 
     def create_input_section(self):
         frame = tk.Frame(self.root, bg=self.BG_COLOR)
