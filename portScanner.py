@@ -90,6 +90,18 @@ class PortScannerApp:
         )
         about_author.pack(pady=(0, 8))
 
+        about_desc = tk.Text(
+            self.about_frame,
+            height=6,
+            width=60,
+            bg="#11111b",
+            fg=self.FG_COLOR,
+            wrap=tk.WORD,
+        )
+        about_desc.insert(tk.END, "A lightweight GUI port scanner for quick network exploration and learning. Use responsibly.")
+        about_desc.config(state=tk.DISABLED)
+        about_desc.pack(padx=20, pady=(0, 12))
+
     def create_title(self):
         title = tk.Label(
             self.root,
