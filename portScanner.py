@@ -4,6 +4,7 @@ from datetime import datetime
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 import concurrent.futures
+import webbrowser
 # COMMIT_MARKER: init-feature-commit-1
 
 
