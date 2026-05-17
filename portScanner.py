@@ -48,6 +48,13 @@ class PortScannerApp:
 
     # UI adjustment
     def create_widgets(self):
+        # Create notebook to host main app and About tab
+        self.notebook = ttk.Notebook(self.root)
+        self.main_frame = tk.Frame(self.root, bg=self.BG_COLOR)
+        self.notebook.add(self.main_frame, text="Main")
+        self.notebook.pack(fill=tk.BOTH, expand=True)
+
+        # Populate main frame
         self.create_title()
         self.create_input_section()
         self.create_results_section()
