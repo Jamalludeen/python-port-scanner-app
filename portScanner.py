@@ -102,6 +102,37 @@ class PortScannerApp:
         about_desc.config(state=tk.DISABLED)
         about_desc.pack(padx=20, pady=(0, 12))
 
+        license_label = tk.Label(
+            self.about_frame,
+            text="License:",
+            font=("Segoe UI", 12, "bold"),
+            fg=self.FG_COLOR,
+            bg=self.BG_COLOR,
+        )
+        license_label.pack()
+
+        license_text = tk.Text(
+            self.about_frame,
+            height=6,
+            width=60,
+            bg="#11111b",
+            fg=self.FG_COLOR,
+            wrap=tk.WORD,
+        )
+        license_text.insert(tk.END, "MIT License - see LICENSE file")
+        license_text.config(state=tk.DISABLED)
+        license_text.pack(padx=20, pady=(0, 8))
+
+        copy_license_btn = tk.Button(
+            self.about_frame,
+            text="Copy License",
+            font=("Segoe UI", 10, "bold"),
+            bg="#6c6cff",
+            fg="white",
+            command=lambda: self.root.clipboard_append("MIT License - see LICENSE file"),
+        )
+        copy_license_btn.pack(pady=(0, 12))
+
     def create_title(self):
         title = tk.Label(
             self.root,
