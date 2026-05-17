@@ -51,18 +51,23 @@ class PortScannerApp:
     def create_widgets(self):
         # Create notebook to host main app and About tab
         self.notebook = ttk.Notebook(self.root)
-        self.main_frame = tk.Frame(self.root, bg=self.BG_COLOR)
+        self.main_frame = tk.Frame(self.notebook, bg=self.BG_COLOR)
+        self.about_frame = tk.Frame(self.notebook, bg=self.BG_COLOR)
         self.notebook.add(self.main_frame, text="Main")
+        self.notebook.add(self.about_frame, text="About")
         self.notebook.pack(fill=tk.BOTH, expand=True)
+
+        self.main_top_frame = tk.Frame(self.main_frame, bg=self.BG_COLOR)
+        self.main_top_frame.pack(fill=tk.X, padx=8, pady=8)
+
+        self.main_results_frame = tk.Frame(self.main_frame, bg=self.BG_COLOR)
+        self.main_results_frame.pack(fill=tk.BOTH, expand=True, padx=8, pady=(0, 8))
 
         # Populate main frame
         self.create_title()
         self.create_input_section()
         self.create_results_section()
 
-        # About tab placeholder (will fill in later commits)
-        self.about_frame = tk.Frame(self.root, bg=self.BG_COLOR)
-        self.notebook.add(self.about_frame, text="About")
         # commit 5: about header
         about_title = tk.Label(
             self.about_frame,
@@ -177,19 +182,17 @@ class PortScannerApp:
 
     def create_title(self):
         title = tk.Label(
-            self.root,
+            self.main_top_frame,
             text="PORT SCANNER",
             font=("Segoe UI", 24, "bold"),
             fg=self.ACCENT_COLOR,
             bg=self.BG_COLOR,
         )
-        title.pack(pady=15)
-        # commit 3: move title widget into main_frame for tabbed layout
-        title.master = self.main_frame
+        title.pack(pady=(6, 10))
 
     def create_input_section(self):
-        frame = tk.Frame(self.root, bg=self.BG_COLOR)
-        frame.pack(pady=10)
+        frame = tk.Frame(self.main_top_frame, bg=self.BG_COLOR)
+        frame.pack(fill=tk.X, pady=(0, 6))
 
         label = tk.Label(
             frame,
@@ -290,8 +293,8 @@ class PortScannerApp:
         self.thread_count_spinbox.pack(side=tk.LEFT, padx=5)
 
         # Toolbar for secondary actions so buttons don't overflow
-        toolbar = tk.Frame(self.root, bg=self.BG_COLOR)
-        toolbar.pack(fill=tk.X, padx=10, pady=(6, 0))
+        toolbar = tk.Frame(self.main_top_frame, bg=self.BG_COLOR)
+        toolbar.pack(fill=tk.X, pady=(0, 6))
 
         self.export_button = tk.Button(
             toolbar,
@@ -345,9 +348,30 @@ class PortScannerApp:
         )
         self.help_button.pack(side=tk.LEFT, padx=8)
 
+        # Keep progress controls in top area of Main tab
+        self.progress_var = tk.IntVar(value=0)
+        progress_frame = tk.Frame(self.main_top_frame, bg=self.BG_COLOR)
+        progress_frame.pack(fill=tk.X, pady=(0, 4))
+        self.progress_label = tk.Label(
+            progress_frame,
+            text="Progress:",
+            font=("Segoe UI", 10),
+            fg=self.FG_COLOR,
+            bg=self.BG_COLOR,
+        )
+        self.progress_label.pack(side=tk.LEFT)
+        self.progress = ttk.Progressbar(
+            progress_frame,
+            orient=tk.HORIZONTAL,
+            length=500,
+            mode="determinate",
+            variable=self.progress_var,
+        )
+        self.progress.pack(side=tk.LEFT, padx=8, fill=tk.X, expand=True)
+
     def create_results_section(self):
-        frame = tk.Frame(self.root, bg=self.BG_COLOR)
-        frame.pack(pady=15, fill=tk.BOTH, expand=True)
+        frame = tk.Frame(self.main_results_frame, bg=self.BG_COLOR)
+        frame.pack(fill=tk.BOTH, expand=True)
 
         self.results_box = tk.Text(
             frame,
@@ -366,24 +390,6 @@ class PortScannerApp:
         self.results_box.tag_config("open", foreground=self.SUCCESS_COLOR)
         self.results_box.tag_config("error", foreground=self.ERROR_COLOR)
         self.results_box.tag_config("info", foreground=self.ACCENT_COLOR)
-
-        # Progress bar (initial UI element)
-        self.progress_var = tk.IntVar(value=0)
-        progress_frame = tk.Frame(self.root, bg=self.BG_COLOR)
-        progress_frame.pack(fill=tk.X, padx=15, pady=(4, 10))
-        self.progress_label = tk.Label(
-            progress_frame,
-            text="Progress:",
-            font=("Segoe UI", 10),
-            fg=self.FG_COLOR,
-            bg=self.BG_COLOR,
-        )
-        self.progress_label.pack(side=tk.LEFT)
-        # Commit 3 note: progress label added
-        self.progress = ttk.Progressbar(
-            progress_frame, orient=tk.HORIZONTAL, length=400, mode="determinate", variable=self.progress_var
-        )
-        self.progress.pack(side=tk.LEFT, padx=8)
 
     # scan control
     def start_scan(self):
