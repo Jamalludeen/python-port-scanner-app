@@ -161,6 +161,32 @@ class PortScannerApp:
         )
         threads_msg.pack(padx=20, pady=(0, 8))
 
+        # Notes / Warnings (commit 5)
+        notes_label = tk.Label(
+            self.about_frame,
+            text="Notes:",
+            font=("Segoe UI", 12, "bold"),
+            fg=self.FG_COLOR,
+            bg=self.BG_COLOR,
+        )
+        notes_label.pack(pady=(6, 2))
+
+        notes_msg = tk.Message(
+            self.about_frame,
+            text=(
+                "Use this tool responsibly. Scanning networks you do not own or\n"
+                "have permission to test may be illegal. The scanner performs\n"
+                "basic TCP connection checks only; it does not exploit services.\n"
+                "Adjust timeouts and thread counts for remote targets to avoid\n"
+                "false negatives or overload."
+            ),
+            width=560,
+            bg="#11111b",
+            fg=self.FG_COLOR,
+            font=("Segoe UI", 10),
+        )
+        notes_msg.pack(padx=20, pady=(0, 8))
+
         license_label = tk.Label(
             self.about_frame,
             text="License:",
