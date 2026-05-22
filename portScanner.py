@@ -5,6 +5,8 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 import concurrent.futures
 import webbrowser
+import re
+import ipaddress
 # COMMIT_MARKER: init-feature-commit-1
 
 
