@@ -119,6 +119,22 @@ class PortScannerApp:
         )
         valid_label.pack(pady=(4, 2))
 
+        valid_examples = tk.Message(
+            self.about_frame,
+            text=(
+                "Examples:\n"
+                "- IPv4: 192.168.1.10\n"
+                "- IPv6: ::1 or [::1]:80\n"
+                "- Domain: example.com or sub.domain.example.com\n"
+                "- You may optionally include a port (e.g. example.com:8080)"
+            ),
+            width=560,
+            bg="#11111b",
+            fg=self.FG_COLOR,
+            font=("Segoe UI", 10),
+        )
+        valid_examples.pack(padx=20, pady=(0, 8))
+
         license_label = tk.Label(
             self.about_frame,
             text="License:",
