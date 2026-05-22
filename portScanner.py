@@ -135,6 +135,16 @@ class PortScannerApp:
         )
         valid_examples.pack(padx=20, pady=(0, 8))
 
+        # Threads explanation header (commit 3)
+        threads_label = tk.Label(
+            self.about_frame,
+            text="Threads:",
+            font=("Segoe UI", 12, "bold"),
+            fg=self.FG_COLOR,
+            bg=self.BG_COLOR,
+        )
+        threads_label.pack(pady=(6, 2))
+
         license_label = tk.Label(
             self.about_frame,
             text="License:",
