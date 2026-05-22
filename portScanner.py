@@ -302,6 +302,16 @@ class PortScannerApp:
         )
         repo_btn.pack(side=tk.LEFT, padx=6)
 
+        # Copyright and developer footer (commit 8)
+        footer = tk.Label(
+            self.about_frame,
+            text="© 2026 Jamalludeen Karimi — jamalghazniwal@gmail.com",
+            font=("Segoe UI", 9),
+            fg=self.FG_COLOR,
+            bg=self.BG_COLOR,
+        )
+        footer.pack(pady=(12, 10))
+
     def create_title(self):
         title = tk.Label(
             self.main_top_frame,
