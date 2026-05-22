@@ -145,6 +145,22 @@ class PortScannerApp:
         )
         threads_label.pack(pady=(6, 2))
 
+        threads_msg = tk.Message(
+            self.about_frame,
+            text=(
+                "The 'Threads' setting controls how many concurrent worker threads\n"
+                "are used to check ports. Higher values usually make scans faster,\n"
+                "but may increase CPU and network load on your machine and the\n"
+                "target. For typical local scans, values between 10 and 100 are\n"
+                "reasonable. Use caution when scanning remote networks."
+            ),
+            width=560,
+            bg="#11111b",
+            fg=self.FG_COLOR,
+            font=("Segoe UI", 10),
+        )
+        threads_msg.pack(padx=20, pady=(0, 8))
+
         license_label = tk.Label(
             self.about_frame,
             text="License:",
