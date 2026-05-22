@@ -398,6 +398,11 @@ class PortScannerApp:
         if self.scan_thread and self.scan_thread.is_alive():
             return
 
+        target = self.host_entry.get().strip()
+        if not (self.is_valid_ip(target) or self.is_valid_hostname(target)):
+            messagebox.showerror("Invalid input", "Please enter a valid IP address or domain name")
+            return
+
         self.stop_event.clear()
         self.active_futures.clear()
         self.submitted_jobs = 0
