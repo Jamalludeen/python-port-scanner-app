@@ -458,6 +458,32 @@ class PortScannerApp:
             v = self.DEFAULT_TIMEOUT
         return v
 
+    # Validation helpers
+    def is_valid_ip(self, value: str) -> bool:
+        try:
+            ipaddress.ip_address(value)
+            return True
+        except Exception:
+            return False
+
+    def is_valid_hostname(self, value: str) -> bool:
+        if not value:
+            return False
+        # basic hostname rules
+        if len(value) > 255:
+            return False
+        if value[-1] == ".":
+            value = value[:-1]
+        # allow localhost explicitly
+        if value.lower() == "localhost":
+            return True
+        label_re = re.compile(r"^(?!-)[A-Za-z0-9-]{1,63}(?<!-)$")
+        parts = value.split(".")
+        for part in parts:
+            if not label_re.match(part):
+                return False
+        return True
+
     def scan_single_port(self, target, port):
         if self.stop_event.is_set():
             return (port, False)
