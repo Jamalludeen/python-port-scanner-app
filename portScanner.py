@@ -5,6 +5,8 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 import concurrent.futures
 import webbrowser
+import re
+import ipaddress
 # COMMIT_MARKER: init-feature-commit-1
 
 
@@ -205,6 +207,8 @@ class PortScannerApp:
 
         self.host_entry = tk.Entry(frame, width=30, font=("Segoe UI", 12))
         self.host_entry.pack(side=tk.LEFT, padx=5)
+        # validate on focus out and provide visual feedback
+        self.host_entry.bind('<FocusOut>', lambda e: self._validate_host_field())
 
         # Port range inputs (initial UI only)
         sp_label = tk.Label(
@@ -396,6 +400,12 @@ class PortScannerApp:
         if self.scan_thread and self.scan_thread.is_alive():
             return
 
+        raw_target = self.host_entry.get().strip()
+        target = self.normalize_host(raw_target)
+        if not (self.is_valid_ip(target) or self.is_valid_hostname(target)):
+            messagebox.showerror("Invalid input", "Please enter a valid IP address or domain name")
+            return
+
         self.stop_event.clear()
         self.active_futures.clear()
         self.submitted_jobs = 0
@@ -456,6 +466,46 @@ class PortScannerApp:
             v = self.DEFAULT_TIMEOUT
         return v
 
+    # Validation helpers
+    def is_valid_ip(self, value: str) -> bool:
+        try:
+            ipaddress.ip_address(value)
+            return True
+        except Exception:
+            return False
+
+    def is_valid_hostname(self, value: str) -> bool:
+        if not value:
+            return False
+        # basic hostname rules
+        if len(value) > 255:
+            return False
+        if value[-1] == ".":
+            value = value[:-1]
+        # allow localhost explicitly
+        if value.lower() == "localhost":
+            return True
+        label_re = re.compile(r"^(?!-)[A-Za-z0-9-]{1,63}(?<!-)$")
+        parts = value.split(".")
+        for part in parts:
+            if not label_re.match(part):
+                return False
+        return True
+
+    def normalize_host(self, value: str) -> str:
+        """Strip optional port from host like example.com:80 -> example.com"""
+        if not value:
+            return value
+        if ":" in value:
+            # handle IPv6 in brackets [::1]:80
+            if value.count(":") > 1 and value.startswith("["):
+                # find closing bracket
+                end = value.find("]")
+                if end != -1:
+                    return value[1:end]
+            return value.split(":")[0]
+        return value
+
     def scan_single_port(self, target, port):
         if self.stop_event.is_set():
             return (port, False)
@@ -491,6 +541,19 @@ class PortScannerApp:
     def _queue_error_dialog(self, title, message):
         self.root.after(0, messagebox.showerror, title, message)
 
+    def _validate_host_field(self):
+        val = self.normalize_host(self.host_entry.get().strip())
+        try:
+            if val and (self.is_valid_ip(val) or self.is_valid_hostname(val)):
+                self.host_entry.config(bg='white')
+                return True
+            else:
+                self.host_entry.config(bg='#ffcccc')
+                return False
+        except Exception:
+            self.host_entry.config(bg='#ffcccc')
+            return False
+
     def show_help(self):
         msg = (
             "Port Scanner\n\n"
@@ -521,7 +584,7 @@ class PortScannerApp:
             self.is_maximized = False
 
     def scan_ports(self):
-        target = self.host_entry.get().strip()
+        target = self.normalize_host(self.host_entry.get().strip())
 
         if not target:
             self._queue_error_dialog("Error", "Please enter a hostname or IP address")
