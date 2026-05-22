@@ -109,6 +109,16 @@ class PortScannerApp:
         about_desc.config(state=tk.DISABLED)
         about_desc.pack(padx=20, pady=(0, 12))
 
+        # Valid input section (commit 1)
+        valid_label = tk.Label(
+            self.about_frame,
+            text="Valid input formats:",
+            font=("Segoe UI", 12, "bold"),
+            fg=self.FG_COLOR,
+            bg=self.BG_COLOR,
+        )
+        valid_label.pack(pady=(4, 2))
+
         license_label = tk.Label(
             self.about_frame,
             text="License:",
