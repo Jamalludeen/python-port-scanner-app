@@ -398,7 +398,8 @@ class PortScannerApp:
         if self.scan_thread and self.scan_thread.is_alive():
             return
 
-        target = self.host_entry.get().strip()
+        raw_target = self.host_entry.get().strip()
+        target = self.normalize_host(raw_target)
         if not (self.is_valid_ip(target) or self.is_valid_hostname(target)):
             messagebox.showerror("Invalid input", "Please enter a valid IP address or domain name")
             return
@@ -568,7 +569,7 @@ class PortScannerApp:
             self.is_maximized = False
 
     def scan_ports(self):
-        target = self.host_entry.get().strip()
+        target = self.normalize_host(self.host_entry.get().strip())
 
         if not target:
             self._queue_error_dialog("Error", "Please enter a hostname or IP address")
