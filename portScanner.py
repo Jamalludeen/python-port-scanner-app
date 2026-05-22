@@ -207,6 +207,8 @@ class PortScannerApp:
 
         self.host_entry = tk.Entry(frame, width=30, font=("Segoe UI", 12))
         self.host_entry.pack(side=tk.LEFT, padx=5)
+        # validate on focus out and provide visual feedback
+        self.host_entry.bind('<FocusOut>', lambda e: self._validate_host_field())
 
         # Port range inputs (initial UI only)
         sp_label = tk.Label(
@@ -538,6 +540,19 @@ class PortScannerApp:
 
     def _queue_error_dialog(self, title, message):
         self.root.after(0, messagebox.showerror, title, message)
+
+    def _validate_host_field(self):
+        val = self.normalize_host(self.host_entry.get().strip())
+        try:
+            if val and (self.is_valid_ip(val) or self.is_valid_hostname(val)):
+                self.host_entry.config(bg='white')
+                return True
+            else:
+                self.host_entry.config(bg='#ffcccc')
+                return False
+        except Exception:
+            self.host_entry.config(bg='#ffcccc')
+            return False
 
     def show_help(self):
         msg = (
