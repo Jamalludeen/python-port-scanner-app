@@ -70,57 +70,73 @@ class PortScannerApp:
         self.create_input_section()
         self.create_results_section()
 
-        # commit 5: about header
+        # About section: left-aligned, website-style layout
+        about_container = tk.Frame(self.about_frame, bg=self.BG_COLOR)
+        about_container.pack(fill=tk.BOTH, expand=True, padx=20, pady=12)
+
         about_title = tk.Label(
-            self.about_frame,
+            about_container,
             text="About Port Scanner",
             font=("Segoe UI", 18, "bold"),
             fg=self.ACCENT_COLOR,
             bg=self.BG_COLOR,
         )
-        about_title.pack(pady=(20, 6))
+        about_title.pack(anchor=tk.W)
+
         about_version = tk.Label(
-            self.about_frame,
+            about_container,
             text=f"Version: {self.APP_VERSION}",
             font=("Segoe UI", 11),
             fg=self.FG_COLOR,
             bg=self.BG_COLOR,
         )
-        about_version.pack()
+        about_version.pack(anchor=tk.W, pady=(2, 6))
 
-        about_author = tk.Label(
-            self.about_frame,
-            text="Author: Your Name",
+        # Author row
+        author_row = tk.Frame(about_container, bg=self.BG_COLOR)
+        author_row.pack(fill=tk.X, anchor=tk.W)
+        author_label = tk.Label(
+            author_row,
+            text="Author:",
+            font=("Segoe UI", 11, "bold"),
+            fg=self.FG_COLOR,
+            bg=self.BG_COLOR,
+        )
+        author_label.pack(side=tk.LEFT)
+        author_value = tk.Label(
+            author_row,
+            text="Your Name",
             font=("Segoe UI", 11),
             fg=self.FG_COLOR,
             bg=self.BG_COLOR,
         )
-        about_author.pack(pady=(0, 8))
+        author_value.pack(side=tk.LEFT, padx=(6, 0))
 
-        about_desc = tk.Text(
-            self.about_frame,
-            height=6,
-            width=60,
+        about_desc = tk.Label(
+            about_container,
+            text=(
+                "A lightweight GUI port scanner for quick network exploration and learning.\n"
+                "Use responsibly."
+            ),
             bg="#11111b",
             fg=self.FG_COLOR,
-            wrap=tk.WORD,
+            justify=tk.LEFT,
+            wraplength=900,
         )
-        about_desc.insert(tk.END, "A lightweight GUI port scanner for quick network exploration and learning. Use responsibly.")
-        about_desc.config(state=tk.DISABLED)
-        about_desc.pack(padx=20, pady=(0, 12))
+        about_desc.pack(fill=tk.X, pady=(8, 12))
 
-        # Valid input section (commit 1)
+        # Valid input section
         valid_label = tk.Label(
-            self.about_frame,
+            about_container,
             text="Valid input formats:",
             font=("Segoe UI", 12, "bold"),
             fg=self.FG_COLOR,
             bg=self.BG_COLOR,
         )
-        valid_label.pack(pady=(4, 2))
+        valid_label.pack(anchor=tk.W, pady=(2, 4))
 
-        valid_examples = tk.Message(
-            self.about_frame,
+        valid_examples = tk.Label(
+            about_container,
             text=(
                 "Examples:\n"
                 "- IPv4: 192.168.1.10\n"
@@ -128,130 +144,137 @@ class PortScannerApp:
                 "- Domain: example.com or sub.domain.example.com\n"
                 "- You may optionally include a port (e.g. example.com:8080)"
             ),
-            width=560,
             bg="#11111b",
             fg=self.FG_COLOR,
+            justify=tk.LEFT,
+            wraplength=900,
             font=("Segoe UI", 10),
         )
-        valid_examples.pack(padx=20, pady=(0, 8))
+        valid_examples.pack(fill=tk.X, pady=(0, 8))
 
-        # Threads explanation header (commit 3)
+        # Threads explanation
         threads_label = tk.Label(
-            self.about_frame,
+            about_container,
             text="Threads:",
             font=("Segoe UI", 12, "bold"),
             fg=self.FG_COLOR,
             bg=self.BG_COLOR,
         )
-        threads_label.pack(pady=(6, 2))
+        threads_label.pack(anchor=tk.W, pady=(6, 2))
 
-        threads_msg = tk.Message(
-            self.about_frame,
+        threads_msg = tk.Label(
+            about_container,
             text=(
-                "The 'Threads' setting controls how many concurrent worker threads\n"
-                "are used to check ports. Higher values usually make scans faster,\n"
-                "but may increase CPU and network load on your machine and the\n"
-                "target. For typical local scans, values between 10 and 100 are\n"
-                "reasonable. Use caution when scanning remote networks."
+                "The 'Threads' setting controls how many concurrent worker threads are used to check ports.\n"
+                "Higher values usually make scans faster, but may increase CPU and network load on your machine and the target.\n"
+                "For typical local scans, values between 10 and 100 are reasonable. Use caution when scanning remote networks."
             ),
-            width=560,
             bg="#11111b",
             fg=self.FG_COLOR,
+            justify=tk.LEFT,
+            wraplength=900,
             font=("Segoe UI", 10),
         )
-        threads_msg.pack(padx=20, pady=(0, 8))
+        threads_msg.pack(fill=tk.X, pady=(0, 8))
 
-        # Notes / Warnings (commit 5)
+        # Notes / warnings
         notes_label = tk.Label(
-            self.about_frame,
+            about_container,
             text="Notes:",
             font=("Segoe UI", 12, "bold"),
             fg=self.FG_COLOR,
             bg=self.BG_COLOR,
         )
-        notes_label.pack(pady=(6, 2))
+        notes_label.pack(anchor=tk.W, pady=(6, 2))
 
-        notes_msg = tk.Message(
-            self.about_frame,
+        notes_msg = tk.Label(
+            about_container,
             text=(
-                "Use this tool responsibly. Scanning networks you do not own or\n"
-                "have permission to test may be illegal. The scanner performs\n"
-                "basic TCP connection checks only; it does not exploit services.\n"
-                "Adjust timeouts and thread counts for remote targets to avoid\n"
-                "false negatives or overload."
+                "Use this tool responsibly. Scanning networks you do not own or have permission to test may be illegal.\n"
+                "The scanner performs basic TCP connection checks only; it does not exploit services.\n"
+                "Adjust timeouts and thread counts for remote targets to avoid false negatives or overload."
             ),
-            width=560,
             bg="#11111b",
             fg=self.FG_COLOR,
+            justify=tk.LEFT,
+            wraplength=900,
             font=("Segoe UI", 10),
         )
-        notes_msg.pack(padx=20, pady=(0, 8))
+        notes_msg.pack(fill=tk.X, pady=(0, 8))
 
         license_label = tk.Label(
-            self.about_frame,
+            about_container,
             text="License:",
             font=("Segoe UI", 12, "bold"),
             fg=self.FG_COLOR,
             bg=self.BG_COLOR,
         )
-        license_label.pack()
+        license_label.pack(anchor=tk.W)
 
-        license_text = tk.Text(
-            self.about_frame,
-            height=6,
-            width=60,
+        license_text = tk.Label(
+            about_container,
+            text="MIT License - see LICENSE file",
             bg="#11111b",
             fg=self.FG_COLOR,
-            wrap=tk.WORD,
+            justify=tk.LEFT,
+            wraplength=900,
         )
-        license_text.insert(tk.END, "MIT License - see LICENSE file")
-        license_text.config(state=tk.DISABLED)
-        license_text.pack(padx=20, pady=(0, 8))
+        license_text.pack(fill=tk.X, pady=(0, 8))
 
         copy_license_btn = tk.Button(
-            self.about_frame,
+            about_container,
             text="Copy License",
             font=("Segoe UI", 10, "bold"),
             bg="#6c6cff",
             fg="white",
             command=lambda: self.root.clipboard_append("MIT License - see LICENSE file"),
         )
-        copy_license_btn.pack(pady=(0, 12))
+        copy_license_btn.pack(anchor=tk.W, pady=(0, 12))
 
-        links_frame = tk.Frame(self.about_frame, bg=self.BG_COLOR)
-        links_frame.pack()
+        links_frame = tk.Frame(about_container, bg=self.BG_COLOR)
+        links_frame.pack(anchor=tk.W)
 
         credits_label = tk.Label(
-            self.about_frame,
+            about_container,
             text="Credits: Built by You",
             font=("Segoe UI", 10),
             fg=self.FG_COLOR,
             bg=self.BG_COLOR,
         )
-        credits_label.pack(pady=(12, 6))
+        credits_label.pack(anchor=tk.W, pady=(12, 6))
 
         about_dialog_btn = tk.Button(
-            self.about_frame,
+            links_frame,
             text="About Dialog",
             font=("Segoe UI", 10, "bold"),
             bg="#89b4fa",
             fg="black",
             command=lambda: messagebox.showinfo("About", f"Port Scanner v{self.APP_VERSION}\nBuilt by You"),
         )
-        about_dialog_btn.pack()
+        about_dialog_btn.pack(side=tk.LEFT, padx=(0, 8))
 
-        # Developer contact (commit 6)
+        # Developer contact
+        dev_row = tk.Frame(about_container, bg=self.BG_COLOR)
+        dev_row.pack(fill=tk.X, anchor=tk.W, pady=(6, 2))
         dev_label = tk.Label(
-            self.about_frame,
-            text="Developer: Jamalludeen Karimi",
+            dev_row,
+            text="Developer:",
             font=("Segoe UI", 10, "bold"),
             fg=self.FG_COLOR,
             bg=self.BG_COLOR,
         )
-        dev_label.pack(pady=(8, 2))
+        dev_label.pack(side=tk.LEFT)
+        dev_value = tk.Label(
+            dev_row,
+            text="Jamalludeen Karimi",
+            font=("Segoe UI", 10),
+            fg=self.FG_COLOR,
+            bg=self.BG_COLOR,
+        )
+        dev_value.pack(side=tk.LEFT, padx=(6, 0))
 
         email_btn = tk.Button(
-            self.about_frame,
+            links_frame,
             text="Email: jamalghazniwal@gmail.com",
             font=("Segoe UI", 10),
             bg=self.BG_COLOR,
@@ -259,7 +282,7 @@ class PortScannerApp:
             bd=0,
             command=lambda: webbrowser.open("mailto:jamalghazniwal@gmail.com"),
         )
-        email_btn.pack()
+        email_btn.pack(side=tk.LEFT, padx=(0, 8))
 
         visit_btn = tk.Button(
             links_frame,
@@ -269,7 +292,7 @@ class PortScannerApp:
             fg="white",
             command=lambda: webbrowser.open("https://example.com"),
         )
-        visit_btn.pack(side=tk.LEFT, padx=6)
+        visit_btn.pack(side=tk.LEFT, padx=(0, 6))
 
         close_about_btn = tk.Button(
             links_frame,
@@ -279,9 +302,9 @@ class PortScannerApp:
             fg="white",
             command=lambda: self.notebook.select(self.main_frame),
         )
-        close_about_btn.pack(side=tk.LEFT, padx=6)
+        close_about_btn.pack(side=tk.LEFT, padx=(0, 6))
 
-        # Add GitHub and repo links (commit 7)
+        # Add GitHub and repo links
         github_btn = tk.Button(
             links_frame,
             text="GitHub: Jamalludeen",
@@ -290,7 +313,7 @@ class PortScannerApp:
             fg="white",
             command=lambda: webbrowser.open("https://github.com/Jamalludeen"),
         )
-        github_btn.pack(side=tk.LEFT, padx=6)
+        github_btn.pack(side=tk.LEFT, padx=(0, 6))
 
         repo_btn = tk.Button(
             links_frame,
@@ -300,17 +323,17 @@ class PortScannerApp:
             fg="white",
             command=lambda: webbrowser.open("https://github.com/Jamalludeen/python-port-scanner-app"),
         )
-        repo_btn.pack(side=tk.LEFT, padx=6)
+        repo_btn.pack(side=tk.LEFT, padx=(0, 6))
 
-        # Copyright and developer footer (commit 8)
+        # Copyright and developer footer
         footer = tk.Label(
-            self.about_frame,
+            about_container,
             text="© 2026 Jamalludeen Karimi — jamalghazniwal@gmail.com",
             font=("Segoe UI", 9),
             fg=self.FG_COLOR,
             bg=self.BG_COLOR,
         )
-        footer.pack(pady=(12, 10))
+        footer.pack(anchor=tk.W, pady=(12, 10))
 
     def create_title(self):
         title = tk.Label(
