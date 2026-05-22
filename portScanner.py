@@ -239,6 +239,27 @@ class PortScannerApp:
             command=lambda: messagebox.showinfo("About", f"Port Scanner v{self.APP_VERSION}\nBuilt by You"),
         )
         about_dialog_btn.pack()
+        
+            # Developer contact (commit 6)
+            dev_label = tk.Label(
+                self.about_frame,
+                text="Developer: Jamalludeen Karimi",
+                font=("Segoe UI", 10, "bold"),
+                fg=self.FG_COLOR,
+                bg=self.BG_COLOR,
+            )
+            dev_label.pack(pady=(8, 2))
+        
+            email_btn = tk.Button(
+                self.about_frame,
+                text="Email: jamalghazniwal@gmail.com",
+                font=("Segoe UI", 10),
+                bg=self.BG_COLOR,
+                fg=self.ACCENT_COLOR,
+                bd=0,
+                command=lambda: webbrowser.open("mailto:jamalghazniwal@gmail.com"),
+            )
+            email_btn.pack()
 
         visit_btn = tk.Button(
             links_frame,
