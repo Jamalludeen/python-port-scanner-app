@@ -489,6 +489,20 @@ class PortScannerApp:
                 return False
         return True
 
+    def normalize_host(self, value: str) -> str:
+        """Strip optional port from host like example.com:80 -> example.com"""
+        if not value:
+            return value
+        if ":" in value:
+            # handle IPv6 in brackets [::1]:80
+            if value.count(":") > 1 and value.startswith("["):
+                # find closing bracket
+                end = value.find("]")
+                if end != -1:
+                    return value[1:end]
+            return value.split(":")[0]
+        return value
+
     def scan_single_port(self, target, port):
         if self.stop_event.is_set():
             return (port, False)
