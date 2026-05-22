@@ -281,6 +281,27 @@ class PortScannerApp:
         )
         close_about_btn.pack(side=tk.LEFT, padx=6)
 
+        # Add GitHub and repo links (commit 7)
+        github_btn = tk.Button(
+            links_frame,
+            text="GitHub: Jamalludeen",
+            font=("Segoe UI", 10, "bold"),
+            bg="#24292e",
+            fg="white",
+            command=lambda: webbrowser.open("https://github.com/Jamalludeen"),
+        )
+        github_btn.pack(side=tk.LEFT, padx=6)
+
+        repo_btn = tk.Button(
+            links_frame,
+            text="Repo: python-port-scanner-app",
+            font=("Segoe UI", 10, "bold"),
+            bg="#24292e",
+            fg="white",
+            command=lambda: webbrowser.open("https://github.com/Jamalludeen/python-port-scanner-app"),
+        )
+        repo_btn.pack(side=tk.LEFT, padx=6)
+
     def create_title(self):
         title = tk.Label(
             self.main_top_frame,
