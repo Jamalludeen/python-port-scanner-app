@@ -5,8 +5,8 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 import concurrent.futures
 import webbrowser
-import re
-import ipaddress
+from portscanner.validators import is_valid_ip, is_valid_hostname, normalize_host
+from portscanner.utils import export_to_file, copy_to_clipboard
 # COMMIT_MARKER: init-feature-commit-1
 
 
@@ -554,8 +554,8 @@ class PortScannerApp:
             return
 
         raw_target = self.host_entry.get().strip()
-        target = self.normalize_host(raw_target)
-        if not (self.is_valid_ip(target) or self.is_valid_hostname(target)):
+        target = normalize_host(raw_target)
+        if not (is_valid_ip(target) or is_valid_hostname(target)):
             messagebox.showerror("Invalid input", "Please enter a valid IP address or domain name")
             return
 
@@ -697,7 +697,7 @@ class PortScannerApp:
     def _validate_host_field(self):
         val = self.normalize_host(self.host_entry.get().strip())
         try:
-            if val and (self.is_valid_ip(val) or self.is_valid_hostname(val)):
+            if val and (is_valid_ip(val) or is_valid_hostname(val)):
                 self.host_entry.config(bg='white')
                 return True
             else:
@@ -737,7 +737,7 @@ class PortScannerApp:
             self.is_maximized = False
 
     def scan_ports(self):
-        target = self.normalize_host(self.host_entry.get().strip())
+        target = normalize_host(self.host_entry.get().strip())
 
         if not target:
             self._queue_error_dialog("Error", "Please enter a hostname or IP address")
@@ -811,8 +811,7 @@ class PortScannerApp:
         if not path:
             return
         try:
-            with open(path, "w", encoding="utf-8") as f:
-                f.write(content)
+            export_to_file(path, content)
             messagebox.showinfo("Export", f"Saved results to {path}")
         except Exception as e:
             messagebox.showerror("Export Error", str(e))
@@ -823,8 +822,7 @@ class PortScannerApp:
             messagebox.showinfo("Copy", "No results to copy")
             return
         try:
-            self.root.clipboard_clear()
-            self.root.clipboard_append(content)
+            copy_to_clipboard(self.root, content)
             messagebox.showinfo("Copy", "Results copied to clipboard")
         except Exception as e:
             messagebox.showerror("Copy Error", str(e))
