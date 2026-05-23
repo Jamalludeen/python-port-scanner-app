@@ -7,7 +7,7 @@ import concurrent.futures
 import webbrowser
 from portscanner.validators import is_valid_ip, is_valid_hostname, normalize_host
 from portscanner.utils import export_to_file, copy_to_clipboard
-from portscanner.scanner import scan_single_port
+from portscanner.scanner import scan_single_port, PortScanner
 # COMMIT_MARKER: init-feature-commit-1
 
 
@@ -41,6 +41,7 @@ class PortScannerApp:
         self.submitted_jobs = 0
         self.completed_jobs = 0
         self.open_ports_found = 0
+        self.scanner = PortScanner()
 
         self.create_widgets()
         # Keyboard shortcuts
@@ -664,8 +665,6 @@ class PortScannerApp:
 
     def stop_scan(self):
         self.stop_event.set()
-        for future in list(self.active_futures):
-            future.cancel()
         self.write_result("\n Scan stopped by user.\n", "error")
         self.scan_button.config(state=tk.NORMAL)
         self.stop_button.config(state=tk.DISABLED)
@@ -729,6 +728,7 @@ class PortScannerApp:
             self.is_maximized = False
 
     def scan_ports(self):
+        # Delegate scanning to PortScanner; provide thread-safe callbacks
         target = normalize_host(self.host_entry.get().strip())
 
         if not target:
@@ -736,57 +736,33 @@ class PortScannerApp:
             self._queue_reset_buttons()
             return
 
-        try:
-            ip = socket.gethostbyname(target)
-        except socket.gaierror:
-            self._queue_result_text(" Hostname could not be resolved\n", "error")
-            self._queue_reset_buttons()
-            return
-
-        self._queue_result_text(f"Target: {target}\n")
-        self._queue_result_text(f"IP Address: {ip}\n")
-        self._queue_result_text(f"Started at: {datetime.now()}\n", "info")
-        self._queue_result_text("-" * 40 + "\n")
-
-        socket.setdefaulttimeout(self.get_timeout())
-
-        # Submit scan jobs concurrently using user-selected worker count.
         start_port, end_port = self.get_port_range()
-        ports = list(range(start_port, end_port + 1))
-        workers = self.get_thread_count()
-        self._queue_result_text(f"Workers: {workers}\n", "info")
+        total = max(0, end_port - start_port + 1)
+        self.completed_jobs = 0
+        self.open_ports_found = 0
+        self.submitted_jobs = total
+        self.root.after(0, self.progress.config, {"maximum": max(1, total)})
+        self.root.after(0, self.progress_var.set, 0)
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
-            for port in ports:
-                if self.stop_event.is_set():
-                    break
-                future = executor.submit(scan_single_port, target, port)
-                self.active_futures.add(future)
+        def result_cb(port, is_open):
+            self.root.after(0, self._record_scan_result, port, is_open)
 
-            self.submitted_jobs = len(self.active_futures)
-            self.root.after(0, self.progress.config, {"maximum": max(1, self.submitted_jobs)})
+        def progress_cb(completed, total):
+            self.root.after(0, self.progress_var.set, completed)
 
-            for future in concurrent.futures.as_completed(self.active_futures):
-                if self.stop_event.is_set():
-                    break
-                try:
-                    port, is_open = future.result()
-                except Exception:
-                    self.active_futures.discard(future)
-                    continue
-                self.root.after(0, self._record_scan_result, port, is_open)
-                self.active_futures.discard(future)
+        info_cb = self._queue_result_text
 
-        if self.stop_event.is_set():
-            self._queue_result_text(
-                f"\n Scan stopped after {self.completed_jobs}/{self.submitted_jobs} checks.\n",
-                "error",
-            )
-        else:
-            self._queue_result_text(
-                f"\n Scan completed. Open ports found: {self.open_ports_found}\n",
-                "info",
-            )
+        self.scanner.scan_range(
+            target=target,
+            start=start_port,
+            end=end_port,
+            workers=self.get_thread_count(),
+            timeout=self.get_timeout(),
+            stop_event=self.stop_event,
+            result_cb=result_cb,
+            progress_cb=progress_cb,
+            info_cb=info_cb,
+        )
 
         self._queue_reset_buttons()
 
