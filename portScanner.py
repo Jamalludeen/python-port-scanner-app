@@ -5,8 +5,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 import concurrent.futures
 import webbrowser
-import re
-import ipaddress
+from portscanner.validators import is_valid_ip, is_valid_hostname, normalize_host
 # COMMIT_MARKER: init-feature-commit-1
 
 
@@ -554,8 +553,8 @@ class PortScannerApp:
             return
 
         raw_target = self.host_entry.get().strip()
-        target = self.normalize_host(raw_target)
-        if not (self.is_valid_ip(target) or self.is_valid_hostname(target)):
+        target = normalize_host(raw_target)
+        if not (is_valid_ip(target) or is_valid_hostname(target)):
             messagebox.showerror("Invalid input", "Please enter a valid IP address or domain name")
             return
 
@@ -697,7 +696,7 @@ class PortScannerApp:
     def _validate_host_field(self):
         val = self.normalize_host(self.host_entry.get().strip())
         try:
-            if val and (self.is_valid_ip(val) or self.is_valid_hostname(val)):
+            if val and (is_valid_ip(val) or is_valid_hostname(val)):
                 self.host_entry.config(bg='white')
                 return True
             else:
@@ -737,7 +736,7 @@ class PortScannerApp:
             self.is_maximized = False
 
     def scan_ports(self):
-        target = self.normalize_host(self.host_entry.get().strip())
+        target = normalize_host(self.host_entry.get().strip())
 
         if not target:
             self._queue_error_dialog("Error", "Please enter a hostname or IP address")
