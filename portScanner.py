@@ -7,6 +7,7 @@ import concurrent.futures
 import webbrowser
 from portscanner.validators import is_valid_ip, is_valid_hostname, normalize_host
 from portscanner.utils import export_to_file, copy_to_clipboard
+from portscanner.scanner import scan_single_port
 # COMMIT_MARKER: init-feature-commit-1
 
 
@@ -659,16 +660,7 @@ class PortScannerApp:
             return value.split(":")[0]
         return value
 
-    def scan_single_port(self, target, port):
-        if self.stop_event.is_set():
-            return (port, False)
-
-        try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-                result = sock.connect_ex((target, port))
-                return (port, result == 0)
-        except Exception:
-            return (port, False)
+    # scanning is delegated to portscanner.scanner.scan_single_port
 
     def stop_scan(self):
         self.stop_event.set()
@@ -768,7 +760,7 @@ class PortScannerApp:
             for port in ports:
                 if self.stop_event.is_set():
                     break
-                future = executor.submit(self.scan_single_port, target, port)
+                future = executor.submit(scan_single_port, target, port)
                 self.active_futures.add(future)
 
             self.submitted_jobs = len(self.active_futures)
