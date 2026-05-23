@@ -1,13 +1,10 @@
-import socket
 import threading
-from datetime import datetime
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
-import concurrent.futures
 import webbrowser
 from portscanner.validators import is_valid_ip, is_valid_hostname, normalize_host
 from portscanner.utils import export_to_file, copy_to_clipboard
-from portscanner.scanner import scan_single_port, PortScanner
+from portscanner.scanner import PortScanner
 # COMMIT_MARKER: init-feature-commit-1
 
 
