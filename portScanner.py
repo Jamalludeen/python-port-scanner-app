@@ -6,6 +6,7 @@ from tkinter import ttk, messagebox, filedialog
 import concurrent.futures
 import webbrowser
 from portscanner.validators import is_valid_ip, is_valid_hostname, normalize_host
+from portscanner.utils import export_to_file, copy_to_clipboard
 # COMMIT_MARKER: init-feature-commit-1
 
 
@@ -810,8 +811,7 @@ class PortScannerApp:
         if not path:
             return
         try:
-            with open(path, "w", encoding="utf-8") as f:
-                f.write(content)
+            export_to_file(path, content)
             messagebox.showinfo("Export", f"Saved results to {path}")
         except Exception as e:
             messagebox.showerror("Export Error", str(e))
@@ -822,8 +822,7 @@ class PortScannerApp:
             messagebox.showinfo("Copy", "No results to copy")
             return
         try:
-            self.root.clipboard_clear()
-            self.root.clipboard_append(content)
+            copy_to_clipboard(self.root, content)
             messagebox.showinfo("Copy", "Results copied to clipboard")
         except Exception as e:
             messagebox.showerror("Copy Error", str(e))
