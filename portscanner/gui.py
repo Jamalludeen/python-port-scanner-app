@@ -742,7 +742,17 @@ class PortScannerApp:
         self.root.after(0, self.progress_var.set, 0)
 
         def result_cb(port, is_open):
-            self.root.after(0, self._record_scan_result, port, is_open)
+            # accept banner parameter if provided
+            def _handle(p, open_flag, banner_text=None):
+                self._record_scan_result(p, open_flag)
+                if banner_text:
+                    self._queue_result_text(f"  Banner: {banner_text}\n", "info")
+
+            try:
+                # result_cb from scanner may pass 3 args
+                self.root.after(0, _handle, port, is_open, None)
+            except Exception:
+                self.root.after(0, self._record_scan_result, port, is_open)
 
         def progress_cb(completed, total):
             self.root.after(0, self.progress_var.set, completed)
@@ -757,6 +767,7 @@ class PortScannerApp:
             timeout=self.get_timeout(),
             stop_event=self.stop_event,
             result_cb=result_cb,
+            banner=self.banner_var.get(),
             progress_cb=progress_cb,
             info_cb=info_cb,
         )
