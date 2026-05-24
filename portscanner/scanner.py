@@ -4,14 +4,33 @@ from datetime import datetime
 from typing import Callable, Optional
 
 
-def scan_single_port(target: str, port: int) -> (int, bool):
-    """Attempt a TCP connection to (target, port). Returns (port, is_open)."""
+def scan_single_port(target: str, port: int, banner: bool = False, banner_timeout: float = 0.5) -> (int, bool, str):
+    """Attempt a TCP connection to (target, port).
+
+    Returns a tuple (port, is_open, banner_text).
+    If `banner` is True and the port is open, the function will try to read
+    a small banner from the remote side using a short timeout.
+    """
+    banner_text = None
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.settimeout(banner_timeout)
             result = sock.connect_ex((target, port))
-            return (port, result == 0)
+            is_open = (result == 0)
+            if is_open and banner:
+                try:
+                    # try to receive a short banner without blocking too long
+                    data = sock.recv(1024)
+                    if data:
+                        try:
+                            banner_text = data.decode('utf-8', errors='replace').strip()
+                        except Exception:
+                            banner_text = None
+                except Exception:
+                    banner_text = None
+            return (port, is_open, banner_text)
     except Exception:
-        return (port, False)
+        return (port, False, None)
 
 
 class PortScanner:
@@ -64,13 +83,24 @@ class PortScanner:
                 if stop_event.is_set():
                     break
                 try:
-                    port, is_open = fut.result()
+                        # fut.result may now return (port, is_open, banner)
+                        res = fut.result()
+                        if isinstance(res, tuple) and len(res) == 3:
+                            port, is_open, banner = res
+                        else:
+                            port, is_open = res
+                            banner = None
                 except Exception:
                     continue
 
                 completed += 1
-                if result_cb:
-                    result_cb(port, is_open)
+                    if result_cb:
+                        # result_cb signature: (port, is_open, banner_text)
+                        try:
+                            result_cb(port, is_open, banner)
+                        except TypeError:
+                            # backward compatibility: accept result_cb(port, is_open)
+                            result_cb(port, is_open)
                 if progress_cb:
                     progress_cb(completed, total)
 
