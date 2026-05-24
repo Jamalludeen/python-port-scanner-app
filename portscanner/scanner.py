@@ -53,6 +53,8 @@ class PortScanner:
         result_cb: Optional[Callable[[int, bool], None]] = None,
         progress_cb: Optional[Callable[[int, int], None]] = None,
         info_cb: Optional[Callable[[str, Optional[str]], None]] = None,
+        banner: bool = False,
+        banner_timeout: float = 0.5,
     ) -> None:
         total = max(0, end - start + 1)
         completed = 0
@@ -77,30 +79,30 @@ class PortScanner:
         ports = list(range(start, end + 1))
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
-            futures = [executor.submit(scan_single_port, target, p) for p in ports]
+            futures = [executor.submit(scan_single_port, target, p, banner, banner_timeout) for p in ports]
 
             for fut in concurrent.futures.as_completed(futures):
                 if stop_event.is_set():
                     break
                 try:
-                        # fut.result may now return (port, is_open, banner)
-                        res = fut.result()
-                        if isinstance(res, tuple) and len(res) == 3:
-                            port, is_open, banner = res
-                        else:
-                            port, is_open = res
-                            banner = None
+                    # fut.result may now return (port, is_open, banner)
+                    res = fut.result()
+                    if isinstance(res, tuple) and len(res) == 3:
+                        port, is_open, banner_text = res
+                    else:
+                        port, is_open = res
+                        banner_text = None
                 except Exception:
                     continue
 
                 completed += 1
-                    if result_cb:
-                        # result_cb signature: (port, is_open, banner_text)
-                        try:
-                            result_cb(port, is_open, banner)
-                        except TypeError:
-                            # backward compatibility: accept result_cb(port, is_open)
-                            result_cb(port, is_open)
+                if result_cb:
+                    # result_cb signature: (port, is_open, banner_text)
+                    try:
+                        result_cb(port, is_open, banner_text)
+                    except TypeError:
+                        # backward compatibility: accept result_cb(port, is_open)
+                        result_cb(port, is_open)
                 if progress_cb:
                     progress_cb(completed, total)
 
