@@ -1,10 +1,16 @@
 import socket
 import concurrent.futures
 from datetime import datetime
-from typing import Callable, Optional
+from typing import Callable, Optional, Tuple
 
 
-def scan_single_port(target: str, port: int, banner: bool = False, banner_timeout: float = 0.5) -> (int, bool, str):
+def scan_single_port(
+    target: str,
+    port: int,
+    connect_timeout: float = 0.5,
+    banner: bool = False,
+    banner_timeout: float = 0.5,
+) -> Tuple[int, bool, Optional[str]]:
     """Attempt a TCP connection to (target, port).
 
     Returns a tuple (port, is_open, banner_text).
@@ -14,12 +20,13 @@ def scan_single_port(target: str, port: int, banner: bool = False, banner_timeou
     banner_text = None
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            sock.settimeout(banner_timeout)
+            sock.settimeout(connect_timeout)
             result = sock.connect_ex((target, port))
             is_open = (result == 0)
             if is_open and banner:
                 try:
                     # try to receive a short banner without blocking too long
+                    sock.settimeout(banner_timeout)
                     data = sock.recv(1024)
                     if data:
                         try:
@@ -73,13 +80,10 @@ class PortScanner:
             info_cb("-" * 40 + "\n")
             info_cb(f"Workers: {workers}\n", "info")
 
-        # set default socket timeout for connect_ex
-        socket.setdefaulttimeout(timeout)
-
         ports = list(range(start, end + 1))
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
-            futures = [executor.submit(scan_single_port, target, p, banner, banner_timeout) for p in ports]
+            futures = [executor.submit(scan_single_port, target, p, timeout, banner, banner_timeout) for p in ports]
 
             for fut in concurrent.futures.as_completed(futures):
                 if stop_event.is_set():
