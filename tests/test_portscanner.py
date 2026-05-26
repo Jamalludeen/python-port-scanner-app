@@ -47,6 +47,48 @@ class TestPortScanner(unittest.TestCase):
         self.assertTrue(len(progress) >= 1)
         self.assertTrue(any("Workers" in (t[0] or "") for t in infos))
 
+    def test_scan_range_passes_banner_text(self):
+        srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        srv.bind(("127.0.0.1", 0))
+        srv.listen(1)
+        host, port = srv.getsockname()
+
+        def server_loop():
+            try:
+                conn, _ = srv.accept()
+                try:
+                    conn.sendall(b"Service Ready\n")
+                finally:
+                    conn.close()
+            finally:
+                srv.close()
+
+        t = threading.Thread(target=server_loop, daemon=True)
+        t.start()
+
+        scanner = PortScanner()
+        results = []
+
+        def result_cb(port, is_open, banner_text=None):
+            results.append((port, is_open, banner_text))
+
+        stop_event = threading.Event()
+        scanner.scan_range(
+            "127.0.0.1",
+            port,
+            port,
+            workers=1,
+            timeout=0.5,
+            stop_event=stop_event,
+            result_cb=result_cb,
+            banner=True,
+        )
+
+        self.assertTrue(results)
+        self.assertTrue(results[0][1])
+        self.assertIsNotNone(results[0][2])
+        self.assertIn("Service Ready", results[0][2])
+
 
 if __name__ == "__main__":
     unittest.main()

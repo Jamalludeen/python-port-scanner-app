@@ -38,7 +38,13 @@ Run the unit tests with:
 python run_tests.py
 ```
 
-CI is configured via GitHub Actions to run `python -m unittest discover -v`.
+You can also target a specific test file while iterating:
+
+```bash
+python run_tests.py tests/test_banner.py
+```
+
+CI is configured via GitHub Actions to run the shared `run_tests.py` entrypoint.
 
 ## Banner detection
 

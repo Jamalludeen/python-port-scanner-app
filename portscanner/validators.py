@@ -31,11 +31,15 @@ def normalize_host(value: str) -> str:
     """Strip optional port from host like example.com:80 -> example.com"""
     if not value:
         return value
-    if ":" in value:
-        # handle IPv6 in brackets [::1]:80
-        if value.count(":") > 1 and value.startswith("["):
-            end = value.find("]")
-            if end != -1:
-                return value[1:end]
-        return value.split(":")[0]
+    if value.startswith("[") and "]" in value:
+        end = value.find("]")
+        if end != -1:
+            return value[1:end]
+    try:
+        ipaddress.ip_address(value)
+        return value
+    except Exception:
+        pass
+    if value.count(":") == 1:
+        return value.rsplit(":", 1)[0]
     return value

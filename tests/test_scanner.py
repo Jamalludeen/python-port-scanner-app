@@ -37,15 +37,17 @@ class TestScanner(unittest.TestCase):
         t.start()
 
         # open port should be detected
-        p, is_open = scan_single_port("127.0.0.1", port)
+        p, is_open, banner = scan_single_port("127.0.0.1", port)
         self.assertEqual(p, port)
         self.assertTrue(is_open)
+        self.assertIsNone(banner)
 
         # pick a high port likely closed
-        p2, is_open2 = scan_single_port("127.0.0.1", port + 1)
+        p2, is_open2, banner2 = scan_single_port("127.0.0.1", port + 1)
         self.assertEqual(p2, port + 1)
         # closed or filtered, accept False
         self.assertFalse(is_open2)
+        self.assertIsNone(banner2)
 
 
 if __name__ == "__main__":
