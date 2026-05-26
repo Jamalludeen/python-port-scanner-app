@@ -1,3 +1,5 @@
+import ipaddress
+import re
 import threading
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
@@ -648,14 +650,17 @@ class PortScannerApp:
         """Strip optional port from host like example.com:80 -> example.com"""
         if not value:
             return value
-        if ":" in value:
-            # handle IPv6 in brackets [::1]:80
-            if value.count(":") > 1 and value.startswith("["):
-                # find closing bracket
-                end = value.find("]")
-                if end != -1:
-                    return value[1:end]
-            return value.split(":")[0]
+        if value.startswith("[") and "]" in value:
+            end = value.find("]")
+            if end != -1:
+                return value[1:end]
+        try:
+            ipaddress.ip_address(value)
+            return value
+        except Exception:
+            pass
+        if value.count(":") == 1:
+            return value.rsplit(":", 1)[0]
         return value
 
     # scanning is delegated to portscanner.scanner.scan_single_port
@@ -666,12 +671,14 @@ class PortScannerApp:
         self.scan_button.config(state=tk.NORMAL)
         self.stop_button.config(state=tk.DISABLED)
 
-    def _record_scan_result(self, port, is_open):
+    def _record_scan_result(self, port, is_open, banner_text=None):
         self.completed_jobs += 1
         self.progress_var.set(self.completed_jobs)
         if is_open:
             self.open_ports_found += 1
             self.write_result(f"✔ Port {port} is OPEN\n", "open")
+            if banner_text:
+                self.write_result(f"  Banner: {banner_text}\n", "info")
 
     def _queue_result_text(self, text, tag=None):
         self.root.after(0, self.write_result, text, tag)
@@ -741,18 +748,8 @@ class PortScannerApp:
         self.root.after(0, self.progress.config, {"maximum": max(1, total)})
         self.root.after(0, self.progress_var.set, 0)
 
-        def result_cb(port, is_open):
-            # accept banner parameter if provided
-            def _handle(p, open_flag, banner_text=None):
-                self._record_scan_result(p, open_flag)
-                if banner_text:
-                    self._queue_result_text(f"  Banner: {banner_text}\n", "info")
-
-            try:
-                # result_cb from scanner may pass 3 args
-                self.root.after(0, _handle, port, is_open, None)
-            except Exception:
-                self.root.after(0, self._record_scan_result, port, is_open)
+        def result_cb(port, is_open, banner_text=None):
+            self.root.after(0, self._record_scan_result, port, is_open, banner_text)
 
         def progress_cb(completed, total):
             self.root.after(0, self.progress_var.set, completed)
