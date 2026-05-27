@@ -65,6 +65,7 @@ class PortScanner:
     ) -> None:
         total = max(0, end - start + 1)
         completed = 0
+        open_ports = 0
 
         try:
             ip = socket.gethostbyname(target)
@@ -100,6 +101,8 @@ class PortScanner:
                     continue
 
                 completed += 1
+                if is_open:
+                    open_ports += 1
                 if result_cb:
                     # result_cb signature: (port, is_open, banner_text)
                     try:
@@ -115,5 +118,5 @@ class PortScanner:
                 info_cb(f"\n Scan stopped after {completed}/{total} checks.\n", "error")
         else:
             if info_cb:
-                info_cb(f"\n Scan completed. Open ports found: (see results)\n", "info")
+                info_cb(f"\n Scan completed. Open ports found: {open_ports}\n", "info")
 
