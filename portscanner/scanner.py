@@ -63,6 +63,9 @@ class PortScanner:
         banner: bool = False,
         banner_timeout: float = 0.5,
     ) -> None:
+        workers = max(1, int(workers))
+        timeout = max(0.05, float(timeout))
+        banner_timeout = max(0.05, float(banner_timeout))
         started_at = datetime.now()
         total = max(0, end - start + 1)
         completed = 0
