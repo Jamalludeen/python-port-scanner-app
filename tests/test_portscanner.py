@@ -46,6 +46,8 @@ class TestPortScanner(unittest.TestCase):
         self.assertTrue(len(results) >= 1)
         self.assertTrue(len(progress) >= 1)
         self.assertTrue(any("Workers" in (t[0] or "") for t in infos))
+        self.assertTrue(any("Scan completed in" in (t[0] or "") for t in infos))
+        self.assertTrue(any("Open ports found:" in (t[0] or "") for t in infos))
 
     def test_scan_range_passes_banner_text(self):
         srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -88,6 +90,33 @@ class TestPortScanner(unittest.TestCase):
         self.assertTrue(results[0][1])
         self.assertIsNotNone(results[0][2])
         self.assertIn("Service Ready", results[0][2])
+
+    def test_scan_range_clamps_invalid_workers_and_timeouts(self):
+        scanner = PortScanner()
+        results = []
+        progress = []
+
+        def result_cb(port, is_open, banner_text=None):
+            results.append((port, is_open, banner_text))
+
+        def progress_cb(completed, total):
+            progress.append((completed, total))
+
+        stop_event = threading.Event()
+        scanner.scan_range(
+            "127.0.0.1",
+            1,
+            1,
+            workers=0,
+            timeout=0,
+            banner_timeout=0,
+            stop_event=stop_event,
+            result_cb=result_cb,
+            progress_cb=progress_cb,
+        )
+
+        self.assertEqual(len(results), 1)
+        self.assertTrue(progress)
 
 
 if __name__ == "__main__":
