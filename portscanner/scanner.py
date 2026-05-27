@@ -63,6 +63,7 @@ class PortScanner:
         banner: bool = False,
         banner_timeout: float = 0.5,
     ) -> None:
+        started_at = datetime.now()
         total = max(0, end - start + 1)
         completed = 0
         open_ports = 0
@@ -118,5 +119,6 @@ class PortScanner:
                 info_cb(f"\n Scan stopped after {completed}/{total} checks.\n", "error")
         else:
             if info_cb:
-                info_cb(f"\n Scan completed. Open ports found: {open_ports}\n", "info")
+                elapsed = (datetime.now() - started_at).total_seconds()
+                info_cb(f"\n Scan completed in {elapsed:.2f}s. Open ports found: {open_ports}\n", "info")
 
