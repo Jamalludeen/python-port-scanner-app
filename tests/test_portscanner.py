@@ -118,6 +118,38 @@ class TestPortScanner(unittest.TestCase):
         self.assertEqual(len(results), 1)
         self.assertTrue(progress)
 
+    def test_scan_range_empty_range_returns_early(self):
+        scanner = PortScanner()
+        infos = []
+        results = []
+        progress = []
+
+        def info_cb(text, tag=None):
+            infos.append((text, tag))
+
+        def result_cb(port, is_open, banner_text=None):
+            results.append((port, is_open, banner_text))
+
+        def progress_cb(completed, total):
+            progress.append((completed, total))
+
+        stop_event = threading.Event()
+        scanner.scan_range(
+            "127.0.0.1",
+            10,
+            1,
+            workers=5,
+            timeout=0.5,
+            stop_event=stop_event,
+            result_cb=result_cb,
+            progress_cb=progress_cb,
+            info_cb=info_cb,
+        )
+
+        self.assertFalse(results)
+        self.assertFalse(progress)
+        self.assertTrue(any("empty port range" in (t[0] or "") for t in infos))
+
 
 if __name__ == "__main__":
     unittest.main()
