@@ -12,6 +12,12 @@ Launch the GUI with:
 python main.py
 ```
 
+Show launcher version:
+
+```bash
+python main.py --version
+```
+
 or the legacy wrapper:
 
 ```bash
@@ -42,6 +48,13 @@ You can also target a specific test file while iterating:
 
 ```bash
 python run_tests.py tests/test_banner.py
+```
+
+Useful flags:
+
+```bash
+python run_tests.py --failfast
+python run_tests.py -q
 ```
 
 CI is configured via GitHub Actions to run the shared `run_tests.py` entrypoint.
