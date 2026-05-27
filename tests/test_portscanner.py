@@ -46,6 +46,8 @@ class TestPortScanner(unittest.TestCase):
         self.assertTrue(len(results) >= 1)
         self.assertTrue(len(progress) >= 1)
         self.assertTrue(any("Workers" in (t[0] or "") for t in infos))
+        self.assertTrue(any("Scan completed in" in (t[0] or "") for t in infos))
+        self.assertTrue(any("Open ports found:" in (t[0] or "") for t in infos))
 
     def test_scan_range_passes_banner_text(self):
         srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
