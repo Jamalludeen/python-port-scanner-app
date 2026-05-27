@@ -66,6 +66,12 @@ class PortScanner:
         workers = max(1, int(workers))
         timeout = max(0.05, float(timeout))
         banner_timeout = max(0.05, float(banner_timeout))
+
+        if end < start:
+            if info_cb:
+                info_cb(" Scan completed: empty port range.\n", "info")
+            return
+
         started_at = datetime.now()
         total = max(0, end - start + 1)
         completed = 0
