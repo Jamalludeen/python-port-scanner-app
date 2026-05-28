@@ -150,6 +150,32 @@ class TestPortScanner(unittest.TestCase):
         self.assertFalse(progress)
         self.assertTrue(any("empty port range" in (t[0] or "") for t in infos))
 
+    def test_scan_range_rejects_oversized_ranges(self):
+        scanner = PortScanner()
+        infos = []
+        results = []
+
+        def info_cb(text, tag=None):
+            infos.append((text, tag))
+
+        def result_cb(port, is_open, banner_text=None):
+            results.append((port, is_open, banner_text))
+
+        stop_event = threading.Event()
+        scanner.scan_range(
+            "127.0.0.1",
+            1,
+            scanner.MAX_PORTS_PER_SCAN + 10,
+            workers=5,
+            timeout=0.5,
+            stop_event=stop_event,
+            result_cb=result_cb,
+            info_cb=info_cb,
+        )
+
+        self.assertFalse(results)
+        self.assertTrue(any("Scan aborted" in (t[0] or "") for t in infos))
+
 
 if __name__ == "__main__":
     unittest.main()
