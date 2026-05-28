@@ -41,6 +41,8 @@ def scan_single_port(
 
 
 class PortScanner:
+    MAX_PORTS_PER_SCAN = 4096
+
     """Controller for scanning port ranges with callbacks.
 
     Methods:
@@ -70,6 +72,14 @@ class PortScanner:
         if end < start:
             if info_cb:
                 info_cb(" Scan completed: empty port range.\n", "info")
+            return
+
+        if (end - start + 1) > self.MAX_PORTS_PER_SCAN:
+            if info_cb:
+                info_cb(
+                    f" Scan aborted: range exceeds {self.MAX_PORTS_PER_SCAN} ports.\n",
+                    "error",
+                )
             return
 
         started_at = datetime.now()

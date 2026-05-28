@@ -73,6 +73,9 @@ or custom text banners) to be displayed alongside results in the UI.
 - The scanner logic exposes a callback-based API (`PortScanner.scan_range`) so
   the GUI can remain responsive; callbacks should marshal UI updates onto the
   Tk main thread (the GUI currently uses `root.after` to do so).
+- The GUI title reflects the active target during a scan and the number of open
+  ports when the scan completes.
+- Very large scan ranges are rejected to reduce accidental overload.
 - Tests use a local ephemeral server to validate port detection and callback
   behavior.
 

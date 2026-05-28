@@ -7,6 +7,7 @@ import webbrowser
 from portscanner.validators import is_valid_ip, is_valid_hostname, normalize_host
 from portscanner.utils import export_to_file, copy_to_clipboard
 from portscanner.scanner import PortScanner
+from portscanner import __version__
 # COMMIT_MARKER: init-feature-commit-1
 
 
@@ -22,11 +23,12 @@ class PortScannerApp:
     DEFAULT_END_PORT = 1024
     DEFAULT_THREAD_COUNT = 50
     DEFAULT_TIMEOUT = 0.5
-    APP_VERSION = "0.2"
+    APP_VERSION = __version__
 
     def __init__(self, root):
         self.root = root
-        self.root.title(f"Port Scanner v{self.APP_VERSION}")
+        self.base_title = f"Port Scanner v{self.APP_VERSION}"
+        self.root.title(self.base_title)
         self.root.geometry("1300x680")
         self.root.configure(bg=self.BG_COLOR)
         self.root.resizable(True, True)
@@ -566,6 +568,7 @@ class PortScannerApp:
         self.completed_jobs = 0
         self.open_ports_found = 0
         self.clear_results()
+        self.root.title(f"{self.base_title} - scanning {target}")
 
         self.scan_button.config(state=tk.DISABLED)
         self.stop_button.config(state=tk.NORMAL)
@@ -679,6 +682,8 @@ class PortScannerApp:
             self.write_result(f"✔ Port {port} is OPEN\n", "open")
             if banner_text:
                 self.write_result(f"  Banner: {banner_text}\n", "info")
+        if self.submitted_jobs and self.completed_jobs >= self.submitted_jobs:
+            self.root.title(f"{self.base_title} - {self.open_ports_found} open ports found")
 
     def _queue_result_text(self, text, tag=None):
         self.root.after(0, self.write_result, text, tag)
@@ -707,6 +712,8 @@ class PortScannerApp:
             "Port Scanner\n\n"
             "- Enter a target host or IP and press Scan.\n"
             "- Adjust start/end ports, thread count, and timeout.\n"
+            "- The window title updates with the scan target and final open-port count.\n"
+            "- Oversized scan ranges are rejected to avoid accidental heavy scans.\n"
             "- Use Export/Copy to save results.\n"
             "- F11 toggles maximize.\n"
         )
