@@ -7,6 +7,7 @@ import webbrowser
 from portscanner.validators import is_valid_ip, is_valid_hostname, normalize_host
 from portscanner.utils import export_to_file, copy_to_clipboard
 from portscanner.scanner import PortScanner
+from portscanner import __version__
 # COMMIT_MARKER: init-feature-commit-1
 
 
@@ -22,7 +23,7 @@ class PortScannerApp:
     DEFAULT_END_PORT = 1024
     DEFAULT_THREAD_COUNT = 50
     DEFAULT_TIMEOUT = 0.5
-    APP_VERSION = "0.2"
+    APP_VERSION = __version__
 
     def __init__(self, root):
         self.root = root
