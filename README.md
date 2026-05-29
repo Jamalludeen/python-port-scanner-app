@@ -55,6 +55,7 @@ Useful flags:
 ```bash
 python run_tests.py --failfast
 python run_tests.py -q
+python run_tests.py --pattern=banner
 ```
 
 CI is configured via GitHub Actions to run the shared `run_tests.py` entrypoint.
