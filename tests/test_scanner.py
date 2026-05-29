@@ -49,6 +49,29 @@ class TestScanner(unittest.TestCase):
         self.assertFalse(is_open2)
         self.assertIsNone(banner2)
 
+    def test_scan_single_port_defaults_banner_off(self):
+        srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        srv.bind(("127.0.0.1", 0))
+        srv.listen(1)
+        _, port = srv.getsockname()
+
+        def server_loop():
+            try:
+                conn, _ = srv.accept()
+                try:
+                    conn.sendall(b"HELLO\n")
+                finally:
+                    conn.close()
+            finally:
+                srv.close()
+
+        threading.Thread(target=server_loop, daemon=True).start()
+
+        p, is_open, banner = scan_single_port("127.0.0.1", port)
+        self.assertEqual(p, port)
+        self.assertTrue(is_open)
+        self.assertIsNone(banner)
+
 
 if __name__ == "__main__":
     unittest.main()

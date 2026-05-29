@@ -1,9 +1,7 @@
-from portscanner.gui import PortScannerApp
+"""Legacy wrapper that forwards to the modern launcher."""
+
+from main import main
 
 
 if __name__ == "__main__":
-    import tkinter as tk
-
-    root = tk.Tk()
-    app = PortScannerApp(root)
-    root.mainloop()
+    main()
