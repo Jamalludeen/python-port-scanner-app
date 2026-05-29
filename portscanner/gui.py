@@ -195,7 +195,8 @@ class PortScannerApp:
             text=(
                 "Use this tool responsibly. Scanning networks you do not own or have permission to test may be illegal.\n"
                 "The scanner performs basic TCP connection checks only; it does not exploit services.\n"
-                "Adjust timeouts and thread counts for remote targets to avoid false negatives or overload."
+                "Adjust timeouts and thread counts for remote targets to avoid false negatives or overload.\n"
+                "The legacy portScanner.py entrypoint now forwards into the main launcher."
             ),
             bg="#11111b",
             fg=self.FG_COLOR,
