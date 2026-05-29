@@ -42,6 +42,8 @@ def scan_single_port(
 
 class PortScanner:
     MAX_PORTS_PER_SCAN = 4096
+    # Keep accidental scans bounded so the GUI stays responsive.
+    RANGE_LIMIT_MESSAGE = " Scan aborted: range exceeds {limit} ports.\n"
 
     """Controller for scanning port ranges with callbacks.
 
@@ -76,10 +78,7 @@ class PortScanner:
 
         if (end - start + 1) > self.MAX_PORTS_PER_SCAN:
             if info_cb:
-                info_cb(
-                    f" Scan aborted: range exceeds {self.MAX_PORTS_PER_SCAN} ports.\n",
-                    "error",
-                )
+                info_cb(self.RANGE_LIMIT_MESSAGE.format(limit=self.MAX_PORTS_PER_SCAN), "error")
             return
 
         started_at = datetime.now()
