@@ -8,16 +8,21 @@ def main(argv=None):
 
     failfast = False
     quiet = False
+    pattern = None
     filtered = []
     for arg in argv:
         if arg == "--failfast":
             failfast = True
         elif arg == "-q":
             quiet = True
+        elif arg.startswith("--pattern="):
+            pattern = arg.split("=", 1)[1]
         else:
             filtered.append(arg)
 
     loader = unittest.TestLoader()
+    if pattern:
+        loader.testNamePatterns = [f"*{pattern}*"]
     if filtered:
         suite = unittest.TestSuite()
         for target in filtered:
