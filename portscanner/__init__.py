@@ -1,9 +1,11 @@
 """Public package exports for the port scanner app."""
 
+APP_NAME = "python-port-scanner-app"
 __version__ = "0.2.1"
 
 
 def get_version() -> str:
+    """Return the package version string."""
     return __version__
 
 from .validators import is_valid_ip, is_valid_hostname, normalize_host
@@ -13,6 +15,7 @@ from .gui import PortScannerApp
 
 # Keep the top-level package import friendly for the GUI and scripts.
 __all__ = [
+    "APP_NAME",
     "__version__",
     "get_version",
     "is_valid_ip",

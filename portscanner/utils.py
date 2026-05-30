@@ -14,3 +14,4 @@ def copy_to_clipboard(root, content: str) -> None:
     """Replace the current clipboard contents with the given text."""
     root.clipboard_clear()
     root.clipboard_append(content)
+    root.update_idletasks()
