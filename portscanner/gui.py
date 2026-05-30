@@ -719,6 +719,7 @@ class PortScannerApp:
             "- Enter a target host or IP and press Scan.\n"
             "- Adjust start/end ports, thread count, and timeout.\n"
             "- Use python main.py --version to confirm the installed build.\n"
+            "- Use python run_tests.py --pattern=banner for targeted test runs.\n"
             "- The window title updates with the scan target and final open-port count.\n"
             "- Oversized scan ranges are rejected to avoid accidental heavy scans.\n"
             "- Use Export/Copy to save results.\n"
