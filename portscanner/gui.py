@@ -231,7 +231,7 @@ class PortScannerApp:
             font=("Segoe UI", 10, "bold"),
             bg="#6c6cff",
             fg="white",
-            command=lambda: self.root.clipboard_append("MIT License - see LICENSE file"),
+            command=self.copy_license_to_clipboard,
         )
         copy_license_btn.pack(anchor=tk.W, pady=(0, 12))
 
@@ -695,6 +695,11 @@ class PortScannerApp:
     def _queue_error_dialog(self, title, message):
         self.root.after(0, messagebox.showerror, title, message)
 
+    def copy_license_to_clipboard(self):
+        self.root.clipboard_clear()
+        self.root.clipboard_append("MIT License - see LICENSE file")
+        self.root.update_idletasks()
+
     def _validate_host_field(self):
         val = self.normalize_host(self.host_entry.get().strip())
         try:
@@ -714,6 +719,7 @@ class PortScannerApp:
             "- Enter a target host or IP and press Scan.\n"
             "- Adjust start/end ports, thread count, and timeout.\n"
             "- Use python main.py --version to confirm the installed build.\n"
+            "- Use python run_tests.py --pattern=banner for targeted test runs.\n"
             "- The window title updates with the scan target and final open-port count.\n"
             "- Oversized scan ranges are rejected to avoid accidental heavy scans.\n"
             "- Use Export/Copy to save results.\n"
