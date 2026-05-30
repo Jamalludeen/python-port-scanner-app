@@ -58,6 +58,9 @@ python run_tests.py -q
 python run_tests.py --pattern=banner
 ```
 
+The GUI help dialog also mentions the launcher version flag and the targeted
+test-run pattern so you can find them quickly from inside the app.
+
 CI is configured via GitHub Actions to run the shared `run_tests.py` entrypoint.
 
 ## Banner detection
