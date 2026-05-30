@@ -7,9 +7,11 @@ from portscanner import __version__
 
 
 def main():
+    """Start the Tkinter GUI launcher."""
     import tkinter as tk
 
     parser = argparse.ArgumentParser(
+        prog="python main.py",
         description="Launch the Port Scanner GUI",
         epilog="Use --version to print the installed app version and exit.",
     )
