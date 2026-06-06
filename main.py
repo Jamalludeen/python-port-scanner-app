@@ -6,7 +6,7 @@ from portscanner.gui import PortScannerApp
 from portscanner import APP_NAME, __version__
 
 
-def build_parser():
+def build_parser() -> argparse.ArgumentParser:
     """Build the CLI argument parser."""
     parser = argparse.ArgumentParser(
         prog="python main.py",
@@ -17,7 +17,7 @@ def build_parser():
     return parser
 
 
-def main():
+def main() -> None:
     """Start the Tkinter GUI launcher."""
     import tkinter as tk
 

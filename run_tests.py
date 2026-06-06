@@ -1,3 +1,5 @@
+"""Project test runner wrapper around unittest discovery."""
+
 import unittest
 import sys
 from pathlib import Path

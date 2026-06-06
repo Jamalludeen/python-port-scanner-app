@@ -41,6 +41,7 @@ def scan_single_port(
 
 
 class PortScanner:
+    MIN_TIMEOUT = 0.05
     MAX_PORTS_PER_SCAN = 4096
     # Keep accidental scans bounded so the GUI stays responsive.
     RANGE_LIMIT_MESSAGE = " Scan aborted: range exceeds {limit} ports.\n"
@@ -68,8 +69,8 @@ class PortScanner:
         banner_timeout: float = 0.5,
     ) -> None:
         workers = max(1, int(workers))
-        timeout = max(0.05, float(timeout))
-        banner_timeout = max(0.05, float(banner_timeout))
+        timeout = max(self.MIN_TIMEOUT, float(timeout))
+        banner_timeout = max(self.MIN_TIMEOUT, float(banner_timeout))
 
         if end < start:
             if info_cb:
