@@ -721,6 +721,7 @@ class PortScannerApp:
             "- Use python main.py --version to confirm the installed build.\n"
             "- Use python run_tests.py --pattern=banner for targeted test runs.\n"
             "- The legacy portScanner.py wrapper still launches the GUI.\n"
+            "- Press Stop to cancel scans safely before completion.\n"
             "- The window title updates with the scan target and final open-port count.\n"
             "- Oversized scan ranges are rejected to avoid accidental heavy scans.\n"
             "- Use Export/Copy to save results.\n"
