@@ -60,6 +60,7 @@ python run_tests.py --pattern=banner
 
 The GUI help dialog also mentions the launcher version flag and the targeted
 test-run pattern so you can find them quickly from inside the app.
+Use the Stop button during long scans if you want to cancel early.
 
 CI is configured via GitHub Actions to run the shared `run_tests.py` entrypoint.
 
