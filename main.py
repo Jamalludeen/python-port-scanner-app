@@ -8,6 +8,7 @@ from portscanner import APP_NAME, __version__
 
 def build_parser() -> argparse.ArgumentParser:
     """Build the CLI argument parser."""
+    # Keep the CLI setup separate from Tk initialization.
     parser = argparse.ArgumentParser(
         prog="python main.py",
         description="Launch the Port Scanner GUI",
