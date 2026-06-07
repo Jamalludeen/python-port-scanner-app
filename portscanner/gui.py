@@ -717,7 +717,7 @@ class PortScannerApp:
             "- Enter a target host or IP and press Scan.\n"
             "- Adjust start/end ports, thread count, and timeout.\n"
             "- Use python main.py --version to confirm the installed build.\n"
-            "- Use python run_tests.py --pattern=banner for targeted test runs.\n"
+            "- Use python run_tests.py --pattern banner for targeted test runs.\n"
             "- The legacy portScanner.py wrapper still launches the GUI.\n"
             "- Press Stop to cancel scans safely before completion.\n"
             "- The window title updates with the scan target and final open-port count.\n"

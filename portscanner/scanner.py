@@ -44,6 +44,7 @@ def scan_single_port(
 
 class PortScanner:
     MIN_TIMEOUT = 0.05
+    # Bound scans so a single run stays predictable on a laptop.
     MAX_PORTS_PER_SCAN = 4096
     # Keep accidental scans bounded so the GUI stays responsive.
     RANGE_LIMIT_MESSAGE = " Scan aborted: range exceeds {limit} ports.\n"
