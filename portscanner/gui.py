@@ -696,9 +696,7 @@ class PortScannerApp:
         self.root.after(0, messagebox.showerror, title, message)
 
     def copy_license_to_clipboard(self):
-        self.root.clipboard_clear()
-        self.root.clipboard_append("MIT License - see LICENSE file")
-        self.root.update_idletasks()
+        copy_to_clipboard(self.root, "MIT License - see LICENSE file")
 
     def _validate_host_field(self):
         val = self.normalize_host(self.host_entry.get().strip())

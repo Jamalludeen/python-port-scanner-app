@@ -21,7 +21,9 @@ def main() -> None:
     """Start the Tkinter GUI launcher."""
     import tkinter as tk
 
-    build_parser().parse_args()
+    parser = build_parser()
+    # Parse first so --version exits without opening the GUI.
+    parser.parse_args()
 
     root = tk.Tk()
     app = PortScannerApp(root)

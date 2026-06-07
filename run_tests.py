@@ -12,11 +12,14 @@ def main(argv=None):
     quiet = False
     pattern = None
     filtered = []
-    for arg in argv:
+    argv_iter = iter(argv)
+    for arg in argv_iter:
         if arg == "--failfast":
             failfast = True
         elif arg == "-q":
             quiet = True
+        elif arg == "--pattern":
+            pattern = next(argv_iter, None)
         elif arg.startswith("--pattern="):
             pattern = arg.split("=", 1)[1]
         else:

@@ -3,11 +3,13 @@ import concurrent.futures
 from datetime import datetime
 from typing import Callable, Optional, Tuple
 
+DEFAULT_CONNECT_TIMEOUT = 0.5
+
 
 def scan_single_port(
     target: str,
     port: int,
-    connect_timeout: float = 0.5,
+    connect_timeout: float = DEFAULT_CONNECT_TIMEOUT,
     banner: bool = False,
     banner_timeout: float = 0.5,
 ) -> Tuple[int, bool, Optional[str]]:
