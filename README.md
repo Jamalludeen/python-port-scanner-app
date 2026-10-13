@@ -48,6 +48,7 @@ You can also target a specific test file while iterating:
 
 ```bash
 python run_tests.py tests/test_banner.py
+python run_tests.py tests/test_main.py
 ```
 
 Useful flags:
