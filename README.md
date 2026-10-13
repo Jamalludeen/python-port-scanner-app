@@ -73,6 +73,9 @@ operation with a short timeout and may not work for all services.
 Enable it when you want quick service banners (for example HTTP, SMTP, FTP,
 or custom text banners) to be displayed alongside results in the UI.
 
+Host fields are trimmed automatically, so accidental leading or trailing spaces
+do not invalidate an otherwise valid address.
+
 ## Development Notes
 
 - The scanner logic exposes a callback-based API (`PortScanner.scan_range`) so
