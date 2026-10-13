@@ -4,7 +4,7 @@ import ipaddress
 
 def is_valid_ip(value: str) -> bool:
     try:
-        ipaddress.ip_address(value)
+        ipaddress.ip_address(value.strip())
         return True
     except Exception:
         return False
@@ -13,6 +13,7 @@ def is_valid_ip(value: str) -> bool:
 def is_valid_hostname(value: str) -> bool:
     if not value:
         return False
+    value = value.strip()
     if len(value) > 255:
         return False
     if value[-1] == ".":
@@ -31,6 +32,7 @@ def normalize_host(value: str) -> str:
     """Strip optional port from host like example.com:80 -> example.com"""
     if not value:
         return value
+    value = value.strip()
     if value.startswith("[") and "]" in value:
         end = value.find("]")
         if end != -1:
