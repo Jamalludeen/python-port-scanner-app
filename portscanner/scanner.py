@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Callable, Optional, Tuple
 
 DEFAULT_CONNECT_TIMEOUT = 0.5
+DEFAULT_BANNER_TIMEOUT = 0.5
 
 
 def scan_single_port(
@@ -11,7 +12,7 @@ def scan_single_port(
     port: int,
     connect_timeout: float = DEFAULT_CONNECT_TIMEOUT,
     banner: bool = False,
-    banner_timeout: float = 0.5,
+    banner_timeout: float = DEFAULT_BANNER_TIMEOUT,
 ) -> Tuple[int, bool, Optional[str]]:
     """Attempt a TCP connection to (target, port).
 
