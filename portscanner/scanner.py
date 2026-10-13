@@ -70,7 +70,7 @@ class PortScanner:
         progress_cb: Optional[Callable[[int, int], None]] = None,
         info_cb: Optional[Callable[[str, Optional[str]], None]] = None,
         banner: bool = False,
-        banner_timeout: float = 0.5,
+        banner_timeout: float = DEFAULT_BANNER_TIMEOUT,
     ) -> None:
         workers = max(1, int(workers))
         timeout = max(self.MIN_TIMEOUT, float(timeout))
