@@ -4,6 +4,8 @@ from datetime import datetime
 from typing import Callable, Optional, Tuple
 
 DEFAULT_CONNECT_TIMEOUT = 0.5
+DEFAULT_BANNER_TIMEOUT = 0.5
+BANNER_READ_SIZE = 1024
 
 
 def scan_single_port(
@@ -11,7 +13,7 @@ def scan_single_port(
     port: int,
     connect_timeout: float = DEFAULT_CONNECT_TIMEOUT,
     banner: bool = False,
-    banner_timeout: float = 0.5,
+    banner_timeout: float = DEFAULT_BANNER_TIMEOUT,
 ) -> Tuple[int, bool, Optional[str]]:
     """Attempt a TCP connection to (target, port).
 
@@ -29,7 +31,7 @@ def scan_single_port(
                 try:
                     # try to receive a short banner without blocking too long
                     sock.settimeout(banner_timeout)
-                    data = sock.recv(1024)
+                    data = sock.recv(BANNER_READ_SIZE)
                     if data:
                         try:
                             banner_text = data.decode('utf-8', errors='replace').strip()
@@ -69,8 +71,9 @@ class PortScanner:
         progress_cb: Optional[Callable[[int, int], None]] = None,
         info_cb: Optional[Callable[[str, Optional[str]], None]] = None,
         banner: bool = False,
-        banner_timeout: float = 0.5,
+        banner_timeout: float = DEFAULT_BANNER_TIMEOUT,
     ) -> None:
+        """Scan an inclusive port range and report progress through callbacks."""
         workers = max(1, int(workers))
         timeout = max(self.MIN_TIMEOUT, float(timeout))
         banner_timeout = max(self.MIN_TIMEOUT, float(banner_timeout))
@@ -129,6 +132,7 @@ class PortScanner:
                 if result_cb:
                     # result_cb signature: (port, is_open, banner_text)
                     try:
+                        # Preserve support for older two-argument callbacks.
                         result_cb(port, is_open, banner_text)
                     except TypeError:
                         # backward compatibility: accept result_cb(port, is_open)

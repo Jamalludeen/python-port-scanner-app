@@ -3,9 +3,10 @@
 import unittest
 import sys
 from pathlib import Path
+from typing import List, Optional
 
 
-def main(argv=None):
+def main(argv: Optional[List[str]] = None) -> None:
     argv = list(sys.argv[1:] if argv is None else argv)
 
     failfast = False
