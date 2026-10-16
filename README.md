@@ -91,6 +91,7 @@ do not invalidate an otherwise valid address.
 - The GUI title reflects the active target during a scan and the number of open
   ports when the scan completes.
 - Very large scan ranges are rejected to reduce accidental overload.
+- Worker counts are capped at 256 per scan to keep local resource usage bounded.
 - Tests use a local ephemeral server to validate port detection and callback
   behavior.
 
