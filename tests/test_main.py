@@ -8,6 +8,7 @@ class TestMainParser(unittest.TestCase):
         parser = build_parser()
         self.assertIn("Port Scanner", parser.description)
         self.assertEqual(parser.prog, "python main.py")
+        self.assertIn("check", [action.dest for action in parser._actions])
 
 
 if __name__ == "__main__":
