@@ -18,6 +18,12 @@ Show launcher version:
 python main.py --version
 ```
 
+Check startup configuration without opening the GUI:
+
+```bash
+python main.py --check
+```
+
 or the legacy wrapper:
 
 ```bash
