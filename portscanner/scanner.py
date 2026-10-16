@@ -6,6 +6,7 @@ from typing import Callable, Optional, Tuple
 DEFAULT_CONNECT_TIMEOUT = 0.5
 DEFAULT_BANNER_TIMEOUT = 0.5
 BANNER_READ_SIZE = 1024
+MAX_WORKERS = 256
 
 
 def scan_single_port(
