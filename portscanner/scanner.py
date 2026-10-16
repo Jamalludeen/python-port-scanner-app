@@ -51,6 +51,7 @@ class PortScanner:
     MAX_PORTS_PER_SCAN = 4096
     # Keep accidental scans bounded so the GUI stays responsive.
     RANGE_LIMIT_MESSAGE = " Scan aborted: range exceeds {limit} ports.\n"
+    COMPLETION_MESSAGE = "\n Scan completed in {elapsed:.2f}s. Open ports found: {open_ports}\n"
 
     """Controller for scanning port ranges with callbacks.
 
@@ -147,5 +148,5 @@ class PortScanner:
         else:
             if info_cb:
                 elapsed = (datetime.now() - started_at).total_seconds()
-                info_cb(f"\n Scan completed in {elapsed:.2f}s. Open ports found: {open_ports}\n", "info")
+                info_cb(self.COMPLETION_MESSAGE.format(elapsed=elapsed, open_ports=open_ports), "info")
 
