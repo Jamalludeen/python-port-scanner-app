@@ -75,7 +75,7 @@ class PortScanner:
         banner_timeout: float = DEFAULT_BANNER_TIMEOUT,
     ) -> None:
         """Scan an inclusive port range and report progress through callbacks."""
-        workers = max(1, int(workers))
+        workers = min(MAX_WORKERS, max(1, int(workers)))
         timeout = max(self.MIN_TIMEOUT, float(timeout))
         banner_timeout = max(self.MIN_TIMEOUT, float(banner_timeout))
 
