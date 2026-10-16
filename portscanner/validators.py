@@ -14,6 +14,8 @@ def is_valid_hostname(value: str) -> bool:
     if not value:
         return False
     value = value.strip()
+    if not value:
+        return False
     if len(value) > 255:
         return False
     if value[-1] == ".":
