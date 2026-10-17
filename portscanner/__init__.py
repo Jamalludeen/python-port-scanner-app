@@ -9,7 +9,12 @@ def get_version() -> str:
     return __version__
 
 from .validators import is_valid_ip, is_valid_hostname, normalize_host
-from .scanner import scan_single_port, PortScanner
+from .scanner import (
+    DEFAULT_BANNER_TIMEOUT,
+    DEFAULT_CONNECT_TIMEOUT,
+    PortScanner,
+    scan_single_port,
+)
 from .utils import export_to_file, copy_to_clipboard
 from .gui import PortScannerApp
 
@@ -23,6 +28,8 @@ __all__ = [
     "normalize_host",
     "scan_single_port",
     "PortScanner",
+    "DEFAULT_BANNER_TIMEOUT",
+    "DEFAULT_CONNECT_TIMEOUT",
     "export_to_file",
     "copy_to_clipboard",
     "PortScannerApp",

@@ -14,6 +14,7 @@ def build_parser() -> argparse.ArgumentParser:
         description="Launch the Port Scanner GUI",
         epilog="Use --version to print the installed app version and exit.",
     )
+    parser.add_argument("--check", action="store_true", help="Validate startup configuration and exit")
     parser.add_argument("--version", action="version", version=f"{APP_NAME} {__version__}")
     return parser
 
@@ -24,7 +25,10 @@ def main() -> None:
 
     parser = build_parser()
     # Parse first so --version exits without opening the GUI.
-    parser.parse_args()
+    args = parser.parse_args()
+    if args.check:
+        print(f"{APP_NAME} {__version__}: startup configuration OK")
+        return
 
     root = tk.Tk()
     app = PortScannerApp(root)

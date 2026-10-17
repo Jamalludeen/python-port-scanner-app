@@ -6,6 +6,7 @@ from typing import Callable, Optional, Tuple
 DEFAULT_CONNECT_TIMEOUT = 0.5
 DEFAULT_BANNER_TIMEOUT = 0.5
 BANNER_READ_SIZE = 1024
+MAX_WORKERS = 256
 
 
 def scan_single_port(
@@ -50,6 +51,7 @@ class PortScanner:
     MAX_PORTS_PER_SCAN = 4096
     # Keep accidental scans bounded so the GUI stays responsive.
     RANGE_LIMIT_MESSAGE = " Scan aborted: range exceeds {limit} ports.\n"
+    COMPLETION_MESSAGE = "\n Scan completed in {elapsed:.2f}s. Open ports found: {open_ports}\n"
 
     """Controller for scanning port ranges with callbacks.
 
@@ -74,7 +76,7 @@ class PortScanner:
         banner_timeout: float = DEFAULT_BANNER_TIMEOUT,
     ) -> None:
         """Scan an inclusive port range and report progress through callbacks."""
-        workers = max(1, int(workers))
+        workers = min(MAX_WORKERS, max(1, int(workers)))
         timeout = max(self.MIN_TIMEOUT, float(timeout))
         banner_timeout = max(self.MIN_TIMEOUT, float(banner_timeout))
 
@@ -146,5 +148,5 @@ class PortScanner:
         else:
             if info_cb:
                 elapsed = (datetime.now() - started_at).total_seconds()
-                info_cb(f"\n Scan completed in {elapsed:.2f}s. Open ports found: {open_ports}\n", "info")
+                info_cb(self.COMPLETION_MESSAGE.format(elapsed=elapsed, open_ports=open_ports), "info")
 

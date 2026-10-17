@@ -48,6 +48,7 @@ class TestPortScanner(unittest.TestCase):
         self.assertTrue(any("Workers" in (t[0] or "") for t in infos))
         self.assertTrue(any("Scan completed in" in (t[0] or "") for t in infos))
         self.assertTrue(any("Open ports found:" in (t[0] or "") for t in infos))
+        self.assertTrue(any("s. Open ports found:" in (t[0] or "") for t in infos))
 
     def test_scan_range_passes_banner_text(self):
         srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -117,6 +118,25 @@ class TestPortScanner(unittest.TestCase):
 
         self.assertEqual(len(results), 1)
         self.assertTrue(progress)
+
+    def test_scan_range_clamps_large_worker_count(self):
+        scanner = PortScanner()
+        infos = []
+
+        def info_cb(text, tag=None):
+            infos.append((text, tag))
+
+        scanner.scan_range(
+            "127.0.0.1",
+            1,
+            1,
+            workers=100000,
+            timeout=0.05,
+            stop_event=threading.Event(),
+            info_cb=info_cb,
+        )
+
+        self.assertTrue(any("Workers: 256" in text for text, _ in infos))
 
     def test_scan_range_empty_range_returns_early(self):
         scanner = PortScanner()

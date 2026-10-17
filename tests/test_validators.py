@@ -11,6 +11,7 @@ class TestValidators(unittest.TestCase):
     def test_is_valid_hostname(self):
         self.assertTrue(is_valid_hostname("localhost"))
         self.assertTrue(is_valid_hostname("example.com"))
+        self.assertFalse(is_valid_hostname("   "))
         self.assertFalse(is_valid_hostname("-bad-host"))
 
     def test_normalize_host(self):
